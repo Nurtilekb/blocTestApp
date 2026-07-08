@@ -32,8 +32,10 @@ class AppInputWidget extends StatefulWidget {
   final TextStyle? labelStyle;
   final int? minLines;
   final TextInputAction? textInputAction;
+  final Color? cursorColor;
 
   const AppInputWidget({
+    this.cursorColor,
     super.key,
     this.hintText,
     this.controller,
@@ -113,7 +115,7 @@ class _AppInputWidgetState extends State<AppInputWidget> {
           keyboardType: widget.inputType,
           initialValue: widget.controller == null ? widget.initalValue : null,
           obscureText: widget.isPasswordField == true ? _obsecureText : false,
-          cursorColor: theme.colorScheme.onSurface.withValues(alpha: .6),
+          cursorColor: widget.cursorColor,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           onTap: widget.onTap,
           style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16),
