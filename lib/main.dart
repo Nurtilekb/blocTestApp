@@ -1,22 +1,12 @@
+import 'package:bloctestapp/bloc/counter_bloc.dart';
 import 'package:bloctestapp/pages/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const MyApp());
-}
-
-class Note {
-  final String id;
-  String title;
-  String content;
-  DateTime createdAt;
-
-  Note({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.createdAt,
-  });
+  runApp(
+    BlocProvider(create: (context) => CounterBloc(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {

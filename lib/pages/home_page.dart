@@ -1,6 +1,6 @@
-import 'package:bloctestapp/pages/got_card.dart';
+import 'package:bloctestapp/pages/2_states_of_home_page/got_card.dart';
 import 'package:bloctestapp/pages/search_page.dart';
-import 'package:bloctestapp/pages/withOut_notes.dart';
+import 'package:bloctestapp/pages/2_states_of_home_page/withOut_notes.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {

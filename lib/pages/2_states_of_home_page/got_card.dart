@@ -1,6 +1,6 @@
+import 'package:bloctestapp/pages/create_note_page.dart';
 import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
 import 'package:bloctestapp/widgets/category_list_cards.dart';
-import 'package:bloctestapp/widgets/show_diolog.dart';
 import 'package:flutter/material.dart';
 
 class SeconOne extends StatefulWidget {
@@ -66,9 +66,13 @@ class _SeconOneState extends State<SeconOne> {
               right: 20,
               child: InkWell(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => Showdiolog(),
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (context) => Showdiolog(),
+                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CreateNotePage()),
                   );
                 },
                 child: Container(

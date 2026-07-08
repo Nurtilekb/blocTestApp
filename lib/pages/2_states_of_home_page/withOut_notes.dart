@@ -1,6 +1,4 @@
-import 'package:bloctestapp/pages/got_card.dart';
-import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
-import 'package:bloctestapp/widgets/show_diolog.dart';
+import 'package:bloctestapp/pages/create_note_page.dart';
 import 'package:flutter/material.dart';
 
 class WithOutNotes extends StatelessWidget {
@@ -15,7 +13,7 @@ class WithOutNotes extends StatelessWidget {
           children: [
             Center(
               child: Column(
-                mainAxisAlignment: .center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     padding: EdgeInsets.all(30),
@@ -70,9 +68,13 @@ class WithOutNotes extends StatelessWidget {
               right: 0,
               child: InkWell(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => Showdiolog(),
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (context) => Showdiolog(),
+                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CreateNotePage()),
                   );
                 },
                 child: Container(
