@@ -1,21 +1,14 @@
-import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/pages/home_page.dart';
-import 'package:bloctestapp/services/hive_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final hiveService = HiveService();
-  await hiveService.init();
 
-  runApp(MyApp(hiveService: hiveService));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final HiveService hiveService;
-
-  const MyApp({required this.hiveService, super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +50,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: BlocProvider(
-        create: (context) =>
-            NotesBloc(hiveService: hiveService)..add(const GetNotesEvent()),
-        child: const MyHomePage(title: 'Заметки'),
-      ),
+      home: const MyHomePage(title: 'Заметки'),
     );
   }
 }
