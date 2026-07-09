@@ -72,9 +72,10 @@ class _SeconOneState extends State<SeconOne> {
                       scrollDirection: Axis.horizontal,
                       itemCount: _categories.length,
                       itemBuilder: (context, index) {
+                        final card = _filteredCards[index];
                         return CategoryCard(
                           isSelected: true,
-                          nameCategory: _categories[index],
+                          nameCategory: card.category,
                         );
                       },
                       separatorBuilder: (context, index) {
