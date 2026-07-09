@@ -2,8 +2,17 @@ import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
 
 class CardsInPage extends StatefulWidget {
-  const CardsInPage({super.key});
-
+  CardsInPage({
+    super.key,
+    required this.mainText,
+    required this.descripText,
+    required this.dateTime,
+    required this.categoryText,
+  });
+  final String mainText;
+  final String descripText;
+  final String dateTime;
+  final String categoryText;
   @override
   State<CardsInPage> createState() => _CardsInPageState();
 }
@@ -47,14 +56,14 @@ class _CardsInPageState extends State<CardsInPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const Text(
-                "Созвон по релизу",
+              Text(
+                widget.mainText,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
               Text(
                 maxLines: 3,
-                "Обсудить блокеры, финальный QA и дату публикации в сторах.",
+                widget.descripText,
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.1,
@@ -66,7 +75,7 @@ class _CardsInPageState extends State<CardsInPage> {
               Row(
                 children: [
                   Text(
-                    '5 июля',
+                    widget.dateTime,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight(600),
@@ -96,7 +105,7 @@ class _CardsInPageState extends State<CardsInPage> {
                     ),
                     child: Center(
                       child: Text(
-                        'Работа',
+                        widget.categoryText,
                         style: TextStyle(
                           fontSize: 14,
                           color: const Color.fromARGB(255, 69, 100, 240),

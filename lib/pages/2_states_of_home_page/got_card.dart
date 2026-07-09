@@ -1,3 +1,5 @@
+import 'package:bloctestapp/models/card_manager.dart';
+import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/pages/create_note_page.dart';
 import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
 import 'package:bloctestapp/widgets/category_list_cards.dart';
@@ -12,6 +14,45 @@ class SeconOne extends StatefulWidget {
 
 class _SeconOneState extends State<SeconOne> {
   final _controller = ScrollController();
+  final CardManager _cardManager = CardManager();
+  String _searchQuery = '';
+  String? _selectedCategory;
+
+  List<String> get _categories {
+    final cards = _cardManager.getAllCards();
+    return cards.map((c) => c.category).toSet().toList();
+  }
+
+  // Фильтруем карточки
+  List<Notes> get _filteredCards {
+    var cards = _cardManager.getAllCards();
+
+    // Фильтр по поиску
+    if (_searchQuery.isNotEmpty) {
+      cards = cards
+          .where(
+            (card) =>
+                card.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                card.description.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ),
+          )
+          .toList();
+    }
+
+    // Фильтр по категории
+    if (_selectedCategory != null) {
+      cards = cards
+          .where((card) => card.category == _selectedCategory)
+          .toList();
+    }
+
+    // Сортировка по дате (новые сверху)
+    cards.sort((a, b) => b.date.compareTo(a.date));
+
+    return cards;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,11 +70,11 @@ class _SeconOneState extends State<SeconOne> {
                     child: ListView.separated(
                       controller: _controller,
                       scrollDirection: Axis.horizontal,
-                      itemCount: 8,
+                      itemCount: _categories.length,
                       itemBuilder: (context, index) {
                         return CategoryCard(
                           isSelected: true,
-                          nameCategory: 'Работа',
+                          nameCategory: _categories[index],
                         );
                       },
                       separatorBuilder: (context, index) {
@@ -48,9 +89,17 @@ class _SeconOneState extends State<SeconOne> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
                       child: ListView.separated(
-                        itemCount: 8,
+                        itemCount: _filteredCards.length,
+
                         itemBuilder: (context, index) {
-                          return CardsInPage();
+                          final card = _filteredCards[index];
+                          return CardsInPage(
+                            mainText: card.title,
+                            descripText: card.description,
+                            dateTime: _formatDate(card.date),
+
+                            categoryText: card.category,
+                          );
                         },
                         separatorBuilder: (context, index) {
                           return const SizedBox(height: 12);
@@ -66,10 +115,6 @@ class _SeconOneState extends State<SeconOne> {
               right: 20,
               child: InkWell(
                 onTap: () {
-                  // showDialog(
-                  //   context: context,
-                  //   builder: (context) => Showdiolog(),
-                  // );
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => CreateNotePage()),
@@ -94,5 +139,20 @@ class _SeconOneState extends State<SeconOne> {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return 'Сегодня';
+    } else if (difference.inDays == 1) {
+      return 'Вчера';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} дня(ей) назад';
+    } else {
+      return '${date.day}.${date.month}.${date.year}';
+    }
   }
 }
