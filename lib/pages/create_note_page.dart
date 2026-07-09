@@ -1,3 +1,4 @@
+import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -24,9 +25,12 @@ class CreateNotePage extends StatefulWidget {
 }
 
 class _CreateNotePageState extends State<CreateNotePage> {
+  final _formKey = GlobalKey<FormState>();
+  final _cardManager = CardManager();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _categoryNameController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
 
   int _selectedCategoryId = 0;
 
@@ -75,24 +79,73 @@ class _CreateNotePageState extends State<CreateNotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTopBar(),
-              const SizedBox(height: 20),
-              _buildTitleField(),
-              const SizedBox(height: 12),
-              _buildCategorySelector(),
-              const SizedBox(height: 16),
-              _buildContentField(),
-            ],
+      body: Form(
+        key: _formKey,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTopBar(),
+                const SizedBox(height: 20),
+                _buildTitleField(),
+                const SizedBox(height: 12),
+                _buildCategorySelector(),
+                const SizedBox(height: 16),
+                _buildContentField(),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void _saveCard() {
+    if (_formKey.currentState!.validate()) {
+      String categoryName;
+
+      // 👇 Проверяем, есть ли название в контроллере (новая категория)
+      if (_categoryNameController.text.isNotEmpty) {
+        // Если пользователь добавил новую категорию
+        categoryName = _categoryNameController.text;
+
+        // Добавляем новую категорию в список
+        final newCategory = NoteCategory(
+          id: _categories.length,
+          name: _categoryNameController.text,
+          icon: Icons.folder,
+          color: Colors.teal,
+        );
+        setState(() {
+          _categories.add(newCategory);
+          _selectedCategoryId = newCategory.id;
+        });
+
+        // Очищаем контроллер
+        _categoryNameController.clear();
+      } else {
+        // 👇 Используем текущую выбранную категорию (или первую по умолчанию)
+        categoryName = _currentCategory.name;
+      }
+
+      _cardManager.createCard(
+        title: _titleController.text,
+        description: _contentController.text,
+        category: categoryName, // ✅ Правильное название категории
+        date: _selectedDate,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✅ Карточка создана!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pop(context, true);
+    }
   }
 
   // 👇 Верхняя панель
@@ -115,7 +168,9 @@ class _CreateNotePageState extends State<CreateNotePage> {
           icon: Icons.check,
           iconColor: Colors.white,
           backgroundColor: Theme.of(context).primaryColor,
-          onTap: () {},
+          onTap: () {
+            _saveCard();
+          },
         ),
       ],
     );
@@ -359,8 +414,8 @@ class _CategorySheetContentState extends State<_CategorySheetContent> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: (_isAddingCategory ? Colors.red : Colors.blue).withOpacity(
-            0.1,
+          color: (_isAddingCategory ? Colors.red : Colors.blue).withValues(
+            alpha: 0.1,
           ),
           borderRadius: BorderRadius.circular(20),
         ),
@@ -396,6 +451,7 @@ class _CategorySheetContentState extends State<_CategorySheetContent> {
                 AppInputWidget(
                   controller: widget.categoryNameController,
                   hintText: 'Название категории...',
+                  autofocus1: true,
                 ),
                 const SizedBox(height: 16),
               ],

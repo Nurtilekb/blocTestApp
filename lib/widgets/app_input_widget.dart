@@ -33,6 +33,7 @@ class AppInputWidget extends StatefulWidget {
   final int? minLines;
   final TextInputAction? textInputAction;
   final Color? cursorColor;
+  final bool autofocus1;
 
   const AppInputWidget({
     this.cursorColor,
@@ -66,6 +67,7 @@ class AppInputWidget extends StatefulWidget {
     this.labelStyle,
     this.minLines = 1,
     this.textInputAction,
+    required this.autofocus1,
   });
 
   @override
@@ -111,6 +113,7 @@ class _AppInputWidgetState extends State<AppInputWidget> {
           ),
         if (widget.label != null) const SizedBox(height: 4),
         TextFormField(
+          autofocus: widget.autofocus1,
           controller: widget.controller,
           keyboardType: widget.inputType,
           initialValue: widget.controller == null ? widget.initalValue : null,

@@ -1,6 +1,7 @@
 import 'package:bloctestapp/pages/2_states_of_home_page/got_card.dart';
 import 'package:bloctestapp/pages/search_page.dart';
 import 'package:bloctestapp/pages/2_states_of_home_page/withOut_notes.dart';
+import 'package:bloctestapp/services/%D1%81ardListScreen.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -39,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SearchPage()),
+                    MaterialPageRoute(builder: (context) => CardListScreen()),
                   );
                 },
                 icon: Icon(Icons.search),
