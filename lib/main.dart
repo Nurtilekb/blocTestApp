@@ -1,6 +1,9 @@
+import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/pages/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
@@ -56,7 +59,10 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MyHomePage(title: 'Заметки'),
+      home: BlocProvider(
+        create: (context) => NotesBloc(CardManager())..add(LoadNotes()),
+        child: const MyHomePage(title: 'Заметки'),
+      ),
     );
   }
 }
