@@ -79,7 +79,9 @@ class _CardsInPageState extends State<CardsInPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
+                overflow: TextOverflow.ellipsis,
                 widget.mainText,
+                maxLines: 1,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
