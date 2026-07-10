@@ -1,8 +1,4 @@
-import 'dart:nativewrappers/_internal/vm/lib/async_patch.dart';
-
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/models/card_manager.dart';
-import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +14,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _searchController = TextEditingController();
   ScrollController scrollor = ScrollController();
-  final CardManager _cardManager = CardManager();
+
   String _searchQuery = '';
-  String? _selectedCategory;
 
   @override
   void dispose() {
@@ -91,7 +86,8 @@ class _SearchPageState extends State<SearchPage> {
                             return CardsInPage(
                               mainText: note.title,
                               descripText: note.description,
-                              dateTime: "${note.date}",
+                              dateTime:
+                                  "${note.date.day.toString().padLeft(2, '0')}.${note.date.month.toString().padLeft(2, '0')}.${note.date.year}",
                               categoryText: note.category,
                               detterId: note.id,
                             );
