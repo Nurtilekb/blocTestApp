@@ -1,5 +1,8 @@
+import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/pages/card_datail.dart';
 import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CardsInPage extends StatefulWidget {
   const CardsInPage({
@@ -8,11 +11,13 @@ class CardsInPage extends StatefulWidget {
     required this.descripText,
     required this.dateTime,
     required this.categoryText,
+    required this.detterId,
   });
   final String mainText;
   final String descripText;
   final String dateTime;
   final String categoryText;
+  final String detterId;
   @override
   State<CardsInPage> createState() => _CardsInPageState();
 }
@@ -23,11 +28,28 @@ class _CardsInPageState extends State<CardsInPage> {
     return Material(
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NoteDetailPage2(
+                title: widget.mainText,
+                content: widget.descripText,
+                category: widget.categoryText,
+                categoryColor: Colors.blueAccent,
+                dateTime: widget.dateTime,
+                idGeter: widget.detterId,
+              ),
+            ),
+          );
+        },
         onLongPress: () {
           showDialog(
             context: context,
-            builder: (context) => ShowDeleteDiolog(),
+            builder: (_) => BlocProvider.value(
+              value: context.read<NotesBloc>(),
+              child: ShowDeleteDiolog(getId: widget.detterId),
+            ),
           );
         },
         child: Container(
