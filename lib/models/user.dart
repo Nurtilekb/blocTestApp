@@ -33,9 +33,6 @@ class Notes {
     String? description,
     String? category,
     DateTime? date,
-    bool? isFavorite,
-    String? imageUrl,
-    List<String>? tags,
   }) {
     return Notes(
       id: id ?? this.id,
