@@ -1,8 +1,10 @@
+import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ShowDeleteDiolog extends StatefulWidget {
-  const ShowDeleteDiolog({super.key});
-
+  const ShowDeleteDiolog({super.key, required this.getId});
+  final String getId;
   @override
   State<ShowDeleteDiolog> createState() => _ShowDeleteDiologState();
 }
@@ -42,7 +44,10 @@ class _ShowDeleteDiologState extends State<ShowDeleteDiolog> {
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.red),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  context.read<NotesBloc>().add(DeleteNote(widget.getId));
+                  Navigator.pop(context);
+                },
                 child: Text('Удалить'),
               ),
             ),
