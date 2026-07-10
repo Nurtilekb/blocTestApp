@@ -2,7 +2,7 @@ import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
 
 class CardsInPage extends StatefulWidget {
-  CardsInPage({
+  const CardsInPage({
     super.key,
     required this.mainText,
     required this.descripText,

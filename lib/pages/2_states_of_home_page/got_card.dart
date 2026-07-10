@@ -15,7 +15,7 @@ class SeconOne extends StatefulWidget {
 class _SeconOneState extends State<SeconOne> {
   final _controller = ScrollController();
   final CardManager _cardManager = CardManager();
-  String _searchQuery = '';
+  final String _searchQuery = '';
   String? _selectedCategory;
 
   List<String> get _categories {

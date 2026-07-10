@@ -40,7 +40,7 @@ class _ShowDeleteDiologState extends State<ShowDeleteDiolog> {
               height: 60,
               child: ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.red),
+                  backgroundColor: WidgetStateProperty.all(Colors.red),
                 ),
                 onPressed: () {},
                 child: Text('Удалить'),
