@@ -86,6 +86,7 @@ class _CardsInPageState extends State<CardsInPage> {
               ),
               SizedBox(height: 10),
               Text(
+                overflow: TextOverflow.ellipsis,
                 maxLines: 3,
                 widget.descripText,
                 style: TextStyle(

@@ -36,14 +36,27 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
             children: [
               _buildTopBar(context),
               const SizedBox(height: 24),
-              _buildCategoryBadge(),
-              const SizedBox(height: 20),
+
               _buildTitle(),
               const SizedBox(height: 16),
-              _buildDate(),
-              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Text(
+                    'Категория',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  _buildCategoryBadge(),
+                  Spacer(),
+                ],
+              ),
+              const SizedBox(height: 18),
               _buildDivider(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               _buildContent(),
             ],
           ),
@@ -68,11 +81,17 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
               border: Border.all(color: const Color.fromARGB(75, 0, 0, 0)),
             ),
             child: const Center(
-              child: Icon(Icons.arrow_back_ios_rounded, size: 15),
+              child: Icon(Icons.arrow_back_ios_rounded, size: 20),
             ),
           ),
         ),
         const Spacer(),
+        // Кнопка редактировать
+        // Кнопка редактировать
+        // Кнопка редактировать
+        // Кнопка редактировать
+        // Кнопка редактировать
+        // Кнопка редактировать
         // Кнопка редактировать
         InkWell(
           borderRadius: BorderRadius.circular(40),
@@ -86,11 +105,19 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
               borderRadius: BorderRadius.circular(40),
               border: Border.all(color: const Color.fromARGB(75, 0, 0, 0)),
             ),
-            child: const Center(child: Icon(Icons.edit_outlined, size: 18)),
+            child: const Center(child: Icon(Icons.edit_outlined, size: 20)),
           ),
         ),
         const SizedBox(width: 10),
         // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалить
+        // Кнопка удалитьs
         InkWell(
           borderRadius: BorderRadius.circular(40),
           onTap: () {
@@ -107,7 +134,7 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
               child: Icon(
                 Icons.delete_outline_outlined,
                 color: Colors.red,
-                size: 18,
+                size: 20,
               ),
             ),
           ),
@@ -140,6 +167,7 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
               fontWeight: FontWeight.w600,
             ),
           ),
+          Icon(Icons.arrow_drop_down, color: widget.categoryColor),
         ],
       ),
     );
@@ -159,22 +187,22 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
   }
 
   // 👇 Дата создания
-  Widget _buildDate() {
-    return Row(
-      children: [
-        Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[400]),
-        const SizedBox(width: 6),
-        Text(
-          widget.dateTime,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[500],
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildDate() {
+  //   return Row(
+  //     children: [
+  //       Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[400]),
+  //       const SizedBox(width: 6),
+  //       Text(
+  //         widget.dateTime,
+  //         style: TextStyle(
+  //           fontSize: 14,
+  //           color: Colors.grey[500],
+  //           fontWeight: FontWeight.w400,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   // 👇 Разделитель
   Widget _buildDivider() {
