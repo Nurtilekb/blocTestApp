@@ -2,6 +2,7 @@ import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/bloc/notes_repository.dart';
 import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
+import 'package:bloctestapp/widgets/_categorySheet.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -230,7 +231,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
   }
 
-  // 👇 Селектор категории
   Widget _buildCategorySelector() {
     return Padding(
       padding: const EdgeInsets.only(left: 5.0),
@@ -239,21 +239,44 @@ class _CreateNotePageState extends State<CreateNotePage> {
           const Text('Категория'),
           const SizedBox(width: 10),
           GestureDetector(
-            onTap: _showCategorySheet,
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (sheetContext) {
+                  return CategorySheetContent(
+                    categories: _categories,
+                    selectedCategoryId: _selectedCategoryId,
+                    categoryNameController: _categoryNameController,
+                    onCategorySelected: (id) {
+                      setState(() => _selectedCategoryId = id);
+                    },
+                    onCategoryAdded: (newCategory) {
+                      setState(() {
+                        _categories.add(newCategory);
+                        _selectedCategoryId = newCategory.id;
+                      });
+                    },
+                  );
+                },
+              );
+            },
             child: Container(
               height: 30,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
+                // 👈 Цвет КОНТЕЙНЕРА всегда синий (как было)
                 color: const Color.fromARGB(115, 187, 222, 251),
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Colors.black.withOpacity(0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 2),
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: Colors.black.withOpacity(0.02),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),
@@ -263,16 +286,21 @@ class _CreateNotePageState extends State<CreateNotePage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _currentCategory.name, // 👈 чисто
+                    _currentCategory.name,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Color.fromARGB(255, 69, 100, 240),
+                      color: Color.fromARGB(
+                        255,
+                        69,
+                        100,
+                        240,
+                      ), // 👈 Синий текст
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const Icon(
                     Icons.arrow_drop_down_rounded,
-                    color: Color.fromARGB(255, 69, 100, 240),
+                    color: Color.fromARGB(255, 69, 100, 240), // 👈 Синяя иконка
                   ),
                 ],
               ),
@@ -301,246 +329,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
         expands: true,
         textAlignVertical: TextAlignVertical.top,
         keyboardType: TextInputType.multiline,
-      ),
-    );
-  }
-
-  // 👇 Bottom Sheet выбора категории
-  void _showCategorySheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return _CategorySheetContent(
-          categories: _categories,
-          selectedCategoryId: _selectedCategoryId,
-          categoryNameController: _categoryNameController,
-          onCategorySelected: (id) {
-            setState(() => _selectedCategoryId = id);
-          },
-          onCategoryAdded: (newCategory) {
-            setState(() {
-              _categories.add(newCategory);
-              _selectedCategoryId = newCategory.id;
-            });
-          },
-        );
-      },
-    );
-  }
-}
-
-// 👇 Отдельный виджет для содержимого Bottom Sheet (чистота!)
-class _CategorySheetContent extends StatefulWidget {
-  final List<NoteCategory> categories;
-  final int selectedCategoryId;
-  final TextEditingController categoryNameController;
-  final ValueChanged<int> onCategorySelected;
-  final ValueChanged<NoteCategory> onCategoryAdded;
-
-  const _CategorySheetContent({
-    required this.categories,
-    required this.selectedCategoryId,
-    required this.categoryNameController,
-    required this.onCategorySelected,
-    required this.onCategoryAdded,
-  });
-
-  @override
-  State<_CategorySheetContent> createState() => _CategorySheetContentState();
-}
-
-class _CategorySheetContentState extends State<_CategorySheetContent> {
-  bool _isAddingCategory = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHandle(),
-          const SizedBox(height: 20),
-          _buildHeader(),
-          const SizedBox(height: 12),
-          _buildAddCategoryField(),
-          _buildCategoryLabel(),
-          const SizedBox(height: 12),
-          _buildCategoryChips(),
-          const SizedBox(height: 24),
-          _buildSaveButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHandle() {
-    return Center(
-      child: Container(
-        width: 40,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Категория',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
-          ),
-        ),
-        _buildAddButton(),
-      ],
-    );
-  }
-
-  Widget _buildAddButton() {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isAddingCategory = !_isAddingCategory;
-          if (!_isAddingCategory) widget.categoryNameController.clear();
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: (_isAddingCategory ? Colors.red : Colors.blue).withValues(
-            alpha: 0.1,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              _isAddingCategory ? Icons.close : Icons.add,
-              size: 16,
-              color: _isAddingCategory ? Colors.red : Colors.blue,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _isAddingCategory ? 'Отмена' : 'Добавить',
-              style: TextStyle(
-                fontSize: 14,
-                color: _isAddingCategory ? Colors.red : Colors.blue,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddCategoryField() {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      child: _isAddingCategory
-          ? Column(
-              children: [
-                AppInputWidget(
-                  controller: widget.categoryNameController,
-                  hintText: 'Название категории...',
-                  autofocus1: true,
-                ),
-                const SizedBox(height: 16),
-              ],
-            )
-          : const SizedBox.shrink(),
-    );
-  }
-
-  Widget _buildCategoryLabel() {
-    return Text(
-      'Выберите категорию',
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: Colors.grey[600],
-      ),
-    );
-  }
-
-  Widget _buildCategoryChips() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: widget.categories.map((category) {
-        final isSelected = widget.selectedCategoryId == category.id;
-        return ChoiceChip(
-          label: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                category.icon,
-                size: 16,
-                color: isSelected ? Colors.white : category.color,
-              ),
-              const SizedBox(width: 4),
-              Text(category.name),
-            ],
-          ),
-          selected: isSelected,
-          selectedColor: category.color,
-          onSelected: (_) => widget.onCategorySelected(category.id),
-          labelStyle: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          if (_isAddingCategory &&
-              widget.categoryNameController.text.isNotEmpty) {
-            final newCategory = NoteCategory(
-              id: widget.categories.length,
-              name: widget.categoryNameController.text,
-              icon: Icons.folder,
-              color: Colors.teal,
-            );
-            widget.onCategoryAdded(newCategory);
-            widget.categoryNameController.clear();
-          }
-          Navigator.pop(context);
-        },
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-        ),
-        child: const Text(
-          'Сохранить',
-          style: TextStyle(fontSize: 16, color: Colors.white),
-        ),
       ),
     );
   }
