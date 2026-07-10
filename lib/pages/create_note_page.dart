@@ -1,6 +1,10 @@
+import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes_repository.dart';
 import 'package:bloctestapp/models/card_manager.dart';
+import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // 👇 Модель категории
 class NoteCategory {
@@ -130,13 +134,17 @@ class _CreateNotePageState extends State<CreateNotePage> {
         categoryName = _currentCategory.name;
       }
 
-      _cardManager.createCard(
-        title: _titleController.text,
-        description: _contentController.text,
-        category: categoryName, // ✅ Правильное название категории
-        date: _selectedDate,
+      context.read<NotesBloc>().add(
+        AddNote(
+          Notes(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: _titleController.text,
+            description: _contentController.text,
+            category: categoryName,
+            date: _selectedDate ?? DateTime.now(),
+          ),
+        ),
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('✅ Карточка создана!'),
@@ -161,7 +169,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
         _buildCircleButton(
           icon: Icons.delete_outline_outlined,
           iconColor: Colors.red,
-          onTap: () {},
+
+          onTap: () {
+            Navigator.pop(context);
+          },
         ),
         const SizedBox(width: 15),
         _buildCircleButton(
@@ -196,7 +207,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
               ? Border.all(color: const Color.fromARGB(75, 0, 0, 0))
               : null,
         ),
-        child: Center(child: Icon(icon, size: 15, color: iconColor)),
+        child: Center(child: Icon(icon, size: 20, color: iconColor)),
       ),
     );
   }
