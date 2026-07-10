@@ -1,3 +1,5 @@
+import 'dart:nativewrappers/_internal/vm/lib/async_patch.dart';
+
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
@@ -26,40 +28,6 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  // List<String> get _categories {
-  //   final cards = _cardManager.getAllCards();
-  //   return cards.map((c) => c.category).toSet().toList();
-  // }
-
-  // List<Notes> get _filteredCards {
-  //   var cards = _cardManager.getAllCards();
-
-  //   // Фильтр по поиску
-  //   if (_searchQuery.isNotEmpty) {
-  //     cards = cards
-  //         .where(
-  //           (card) =>
-  //               card.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-  //               card.description.toLowerCase().contains(
-  //                 _searchQuery.toLowerCase(),
-  //               ),
-  //         )
-  //         .toList();
-  //   }
-
-  //   // Фильтр по категории
-  //   if (_selectedCategory != null) {
-  //     cards = cards
-  //         .where((card) => card.category == _selectedCategory)
-  //         .toList();
-  //   }
-
-  //   // Сортировка по дате (новые сверху)
-  //   cards.sort((a, b) => b.date.compareTo(a.date));
-
-  //   return cards;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,6 +46,8 @@ class _SearchPageState extends State<SearchPage> {
                         setState(() {
                           _searchQuery = value;
                         });
+
+                        context.read<NotesBloc>().add(SearchNotes(value));
                       },
                       filledColor: Colors.white,
                       cursorColor: const Color.fromARGB(255, 69, 100, 240),
@@ -105,36 +75,34 @@ class _SearchPageState extends State<SearchPage> {
                 child: SizedBox(
                   child: BlocBuilder<NotesBloc, NotesState>(
                     builder: (context, state) {
-                      if (_searchQuery == null || _searchQuery.isEmpty) {
-                        return SizedBox(
-                          child: Center(child: Text('Поиск заметок...')),
-                        );
-                      } else
-                        return BlocBuilder<NotesBloc, NotesState>(
-                          builder: (context, state) {
-                            if (state is! NotesLoaded) {
-                              return const SizedBox();
-                            }
+                      if (_searchQuery.isEmpty) {
+                        return const Center(child: Text('Поиск заметок...'));
+                      }
 
-                            final cards = state.notes;
+                      if (state is NotesLoaded) {
+                        final notes = state.notes;
 
-                            return ListView.separated(
-                              itemCount: cards.length,
-                              itemBuilder: (context, index) {
-                                return CardsInPage(
-                                  mainText: cards[index].title,
-                                  descripText: cards[index].description,
-                                  dateTime: ("${cards[index].date}"),
-                                  categoryText: cards[index].category,
-                                  detterId: cards[index].id,
-                                );
-                              },
-                              separatorBuilder: (context, index) {
-                                return const SizedBox(height: 12);
-                              },
+                        return ListView.separated(
+                          itemCount: notes.length,
+
+                          itemBuilder: (context, index) {
+                            final note = notes[index];
+
+                            return CardsInPage(
+                              mainText: note.title,
+                              descripText: note.description,
+                              dateTime: "${note.date}",
+                              categoryText: note.category,
+                              detterId: note.id,
                             );
                           },
+
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
                         );
+                      }
+
+                      return const Center(child: CircularProgressIndicator());
                     },
                   ),
                 ),
@@ -144,17 +112,5 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     );
-  }
-
-  String _getResultText(int count) {
-    if (count % 10 == 1 && count % 100 != 11) {
-      return 'результат';
-    } else if (count % 10 >= 2 &&
-        count % 10 <= 4 &&
-        (count % 100 < 10 || count % 100 >= 20)) {
-      return 'результата';
-    } else {
-      return 'результатов';
-    }
   }
 }
