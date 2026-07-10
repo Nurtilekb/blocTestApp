@@ -1,18 +1,20 @@
+import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/pages/create_note_page.dart';
 import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
 import 'package:bloctestapp/widgets/category_list_cards.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SeconOne extends StatefulWidget {
-  const SeconOne({super.key});
+class GotCardPage extends StatefulWidget {
+  const GotCardPage({super.key});
 
   @override
-  State<SeconOne> createState() => _SeconOneState();
+  State<GotCardPage> createState() => _GotCardPageState();
 }
 
-class _SeconOneState extends State<SeconOne> {
+class _GotCardPageState extends State<GotCardPage> {
   final _controller = ScrollController();
   final CardManager _cardManager = CardManager();
   final String _searchQuery = '';
@@ -67,19 +69,29 @@ class _SeconOneState extends State<SeconOne> {
                   padding: const EdgeInsets.only(left: 18.0, top: 15),
                   child: SizedBox(
                     height: 40,
-                    child: ListView.separated(
-                      controller: _controller,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _categories.length,
-                      itemBuilder: (context, index) {
-                        final card = _filteredCards[index];
-                        return CategoryCard(
-                          isSelected: true,
-                          nameCategory: card.category,
+                    child: BlocBuilder<NotesBloc, NotesState>(
+                      builder: (context, state) {
+                        if (state is! NotesLoaded) {
+                          return const SizedBox();
+                        }
+
+                        final cards = state.notes;
+
+                        return ListView.separated(
+                          controller: _controller,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: cards.length,
+                          itemBuilder: (context, index) {
+                            final card = cards[index];
+
+                            return CategoryCard(
+                              isSelected: true,
+                              nameCategory: card.category,
+                            );
+                          },
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 12),
                         );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(width: 12);
                       },
                     ),
                   ),
@@ -100,6 +112,7 @@ class _SeconOneState extends State<SeconOne> {
                             dateTime: _formatDate(card.date),
 
                             categoryText: card.category,
+                            detterId: card.id,
                           );
                         },
                         separatorBuilder: (context, index) {
