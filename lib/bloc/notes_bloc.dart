@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloctestapp/bloc/notes_repository.dart';
 import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
 import 'package:equatable/equatable.dart';
@@ -9,8 +10,8 @@ part 'notes_event.dart';
 part 'notes_state.dart';
 
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
-  final CardManager manager;
-  NotesBloc(this.manager) : super(NotesLoading()) {
+  final NotesRepository repository;
+  NotesBloc(this.repository) : super(NotesLoading()) {
     on<LoadNotes>(_onLoadNotes);
     on<AddNote>(_onAddNote);
     on<DeleteNote>(_onDeleteNote);
@@ -21,7 +22,8 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     emit(NotesLoading());
 
     try {
-      final notes = manager.getAllCards();
+      final notes = repository.getNotes();
+
       emit(NotesLoaded(notes));
     } catch (e) {
       emit(NotesError(e.toString()));
@@ -29,33 +31,29 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   }
 
   Future<void> _onDeleteNote(DeleteNote event, Emitter<NotesState> emit) async {
-    manager.deleteCard(event.id);
+    repository.deleteNote(event.id);
 
-    emit(NotesLoaded(manager.getAllCards()));
+    emit(NotesLoaded(repository.getNotes()));
   }
 
-  FutureOr<void> _onAddNote(AddNote event, Emitter<NotesState> emit) async {
-    manager.createCard(
-      title: event.note.title,
-      description: event.note.description,
-      category: event.note.category,
-    );
-    emit(NotesLoaded(manager.getAllCards()));
+  Future<void> _onAddNote(AddNote event, Emitter<NotesState> emit) async {
+    repository.createNote(event.note);
+
+    emit(NotesLoaded(repository.getNotes()));
   }
 
-  FutureOr<void> _onUpdateNote(
-    UpdateNote event,
-    Emitter<NotesState> emit,
-  ) async {
-    manager.updateCard(event.note);
-    emit(NotesLoaded(manager.getAllCards()));
+  Future<void> _onUpdateNote(UpdateNote event, Emitter<NotesState> emit) async {
+    repository.updateNote(event.note);
+
+    emit(NotesLoaded(repository.getNotes()));
   }
 
-  FutureOr<void> _onSearchNotes(
+  Future<void> _onSearchNotes(
     SearchNotes event,
     Emitter<NotesState> emit,
   ) async {
-    final List<Notes> list = manager.searchCards(event.query);
+    final list = repository.searchNotes(event.query);
+
     emit(NotesLoaded(list));
   }
 }

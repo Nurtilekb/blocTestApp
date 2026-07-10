@@ -60,7 +60,7 @@ class MyHomePage extends StatelessWidget {
               return WithOutNotes();
             }
 
-            return SeconOne();
+            return GotCardPage();
           }
 
           if (state is NotesError) {
