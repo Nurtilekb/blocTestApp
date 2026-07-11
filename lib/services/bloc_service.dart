@@ -276,21 +276,3 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 }
-
-class _FavQtyButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _FavQtyButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Icon(icon, size: 18, color: AppColors.iosBlue),
-      ),
-    );
-  }
-}
