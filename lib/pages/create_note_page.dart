@@ -1,9 +1,7 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/bloc/notes_repository.dart';
 import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/widgets/_categorySheet.dart';
-import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -271,12 +269,12 @@ class _CreateNotePageState extends State<CreateNotePage> {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 2),
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),
