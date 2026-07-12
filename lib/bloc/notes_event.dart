@@ -23,8 +23,10 @@ class DeleteNote extends NotesEvent {
 
 class SearchNotes extends NotesEvent {
   final String query;
+  SearchNotes({required this.query}); // только именованный параметр
 
-  const SearchNotes(this.query);
+  @override
+  List<Object> get props => [query]; // строго List<Object>
 }
 
 class UpdateNote extends NotesEvent {

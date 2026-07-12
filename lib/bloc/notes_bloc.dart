@@ -20,11 +20,9 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   }
   Future<void> _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) async {
     emit(NotesLoading());
-
     try {
       final notes = repository.getNotes();
-
-      emit(NotesLoaded(notes));
+      emit(NotesLoaded(notes: notes)); // 👈 именованный параметр
     } catch (e) {
       emit(NotesError(e.toString()));
     }
@@ -32,20 +30,17 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
 
   Future<void> _onDeleteNote(DeleteNote event, Emitter<NotesState> emit) async {
     repository.deleteNote(event.id);
-
-    emit(NotesLoaded(repository.getNotes()));
+    emit(NotesLoaded(notes: repository.getNotes())); // 👈 именованный параметр
   }
 
   Future<void> _onAddNote(AddNote event, Emitter<NotesState> emit) async {
     repository.createNote(event.note);
-
-    emit(NotesLoaded(repository.getNotes()));
+    emit(NotesLoaded(notes: repository.getNotes())); // 👈 именованный параметр
   }
 
   Future<void> _onUpdateNote(UpdateNote event, Emitter<NotesState> emit) async {
     repository.updateNote(event.note);
-
-    emit(NotesLoaded(repository.getNotes()));
+    emit(NotesLoaded(notes: repository.getNotes())); // 👈 именованный параметр
   }
 
   Future<void> _onSearchNotes(
@@ -53,7 +48,6 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     Emitter<NotesState> emit,
   ) async {
     final list = repository.searchNotes(event.query);
-
-    emit(NotesLoaded(list));
+    emit(NotesLoaded(notes: list, searchQuery: event.query));
   }
 }

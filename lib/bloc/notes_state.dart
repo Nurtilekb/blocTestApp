@@ -11,13 +11,14 @@ final class NotesLoading extends NotesState {
   const NotesLoading();
 }
 
-final class NotesLoaded extends NotesState {
+class NotesLoaded extends NotesState {
   final List<Notes> notes;
+  final String searchQuery;
 
-  const NotesLoaded(this.notes);
+  NotesLoaded({required this.notes, this.searchQuery = ''});
 
   @override
-  List<Object> get props => [notes];
+  List<Object> get props => [notes, searchQuery]; // List<Object>, не Object?
 }
 
 final class NotesError extends NotesState {
