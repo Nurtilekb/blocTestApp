@@ -1,6 +1,3 @@
-import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../models/card_manager.dart';
 import '../models/user.dart';
 

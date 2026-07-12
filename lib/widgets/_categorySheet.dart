@@ -107,8 +107,8 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: (_isAddingCategory ? Colors.red : Colors.blue).withOpacity(
-            0.1,
+          color: (_isAddingCategory ? Colors.red : Colors.blue).withValues(
+            alpha: 0.1,
           ),
           borderRadius: BorderRadius.circular(20),
         ),
@@ -182,7 +182,6 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
       runSpacing: 8,
       children: widget.categories.map((category) {
         final isSelected = _localSelectedId == category.id;
-        ;
         return ChoiceChip(
           label: Row(
             mainAxisSize: MainAxisSize.min,

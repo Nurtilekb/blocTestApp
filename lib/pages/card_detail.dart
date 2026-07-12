@@ -148,10 +148,10 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 17, vertical: 3),
       decoration: BoxDecoration(
-        color: widget.categoryColor.withOpacity(0.1),
+        color: widget.categoryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(25),
         border: Border.all(
-          color: widget.categoryColor.withOpacity(0.3),
+          color: widget.categoryColor.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),
