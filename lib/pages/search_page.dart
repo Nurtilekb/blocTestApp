@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
@@ -13,14 +14,29 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final _searchController = TextEditingController();
-  ScrollController scrollor = ScrollController();
-
+  Timer? _debounce;
   String _searchQuery = '';
+  String _lastSearchedQuery = ''; // 👈 реально выполненный запрос
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() => _searchQuery = value);
+
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(seconds: 1), () {
+      if (value.isEmpty) return;
+      _lastSearchedQuery = value; // запоминаем запрос
+      context.read<NotesBloc>().add(
+        SearchNotes(query: value),
+      ); // передаём только query
+    });
   }
 
   @override
@@ -37,13 +53,7 @@ class _SearchPageState extends State<SearchPage> {
                   Expanded(
                     child: AppInputWidget(
                       autofocus1: true,
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-
-                        context.read<NotesBloc>().add(SearchNotes(value));
-                      },
+                      onChanged: _onSearchChanged,
                       filledColor: Colors.white,
                       cursorColor: const Color.fromARGB(255, 69, 100, 240),
                       leading: const Icon(Icons.search, color: Colors.blueGrey),
@@ -52,9 +62,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                     child: const Text(
                       'Отмена',
                       style: TextStyle(
@@ -67,40 +75,67 @@ class _SearchPageState extends State<SearchPage> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: SizedBox(
-                  child: BlocBuilder<NotesBloc, NotesState>(
-                    builder: (context, state) {
-                      if (_searchQuery.isEmpty) {
-                        return const Center(child: Text('Поиск заметок...'));
+                child: BlocBuilder<NotesBloc, NotesState>(
+                  builder: (context, state) {
+                    // Если строка поиска пустая — подсказка
+                    if (_searchQuery.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Введите запрос для поиска',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      );
+                    }
+
+                    // Показываем загрузку, если состояние не NotesLoaded
+                    // или если результат не соответствует последнему запросу
+                    if (state is NotesLoaded) {
+                      if (state.searchQuery != _lastSearchedQuery) {
+                        return const Center(child: CircularProgressIndicator());
                       }
 
-                      if (state is NotesLoaded) {
-                        final notes = state.notes;
-
-                        return ListView.separated(
-                          itemCount: notes.length,
-
-                          itemBuilder: (context, index) {
-                            final note = notes[index];
-
-                            return CardsInPage(
-                              mainText: note.title,
-                              descripText: note.description,
-                              dateTime:
-                                  "${note.date.day.toString().padLeft(2, '0')}.${note.date.month.toString().padLeft(2, '0')}.${note.date.year}",
-                              categoryText: note.category,
-                              detterId: note.id,
-                            );
-                          },
-
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
+                      final notes = state.notes;
+                      if (notes.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'Ничего не найдено',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
                         );
                       }
 
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                  ),
+                      return ListView.separated(
+                        itemCount: notes.length,
+                        itemBuilder: (context, index) {
+                          final note = notes[index];
+                          return CardsInPage(
+                            mainText: note.title,
+                            descripText: note.description,
+                            dateTime:
+                                "${note.date.day.toString().padLeft(2, '0')}."
+                                "${note.date.month.toString().padLeft(2, '0')}."
+                                "${note.date.year}",
+                            categoryText: note.category,
+                            detterId: note.id,
+                          );
+                        },
+                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      );
+                    }
+
+                    // Обработка ошибки
+                    if (state is NotesError) {
+                      return Center(
+                        child: Text(
+                          'Ошибка: ${state.message}',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    }
+
+                    // Все остальные случаи — загрузка
+                    return const Center(child: CircularProgressIndicator());
+                  },
                 ),
               ),
             ],
