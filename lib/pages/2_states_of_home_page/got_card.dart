@@ -74,13 +74,20 @@ class _GotCardPageState extends State<GotCardPage> {
                         return ListView.separated(
                           controller: _controller,
                           scrollDirection: Axis.horizontal,
-                          itemCount: cards.length,
+
+                          itemCount: cards
+                              .map((card) => card.category)
+                              .toSet()
+                              .length,
                           itemBuilder: (context, index) {
-                            final card = cards[index];
+                            final forCategory = cards
+                                .map((card) => card.category)
+                                .toSet()
+                                .toList();
 
                             return CategoryCard(
                               isSelected: false,
-                              nameCategory: card.category,
+                              nameCategory: forCategory[index],
                             );
                           },
                           separatorBuilder: (_, _) => const SizedBox(width: 12),
