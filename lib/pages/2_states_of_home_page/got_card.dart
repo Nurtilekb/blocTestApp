@@ -20,12 +20,6 @@ class _GotCardPageState extends State<GotCardPage> {
   final String _searchQuery = '';
   String? _selectedCategory;
 
-  List<String> get _categories {
-    final cards = _cardManager.getAllCards();
-    return cards.map((c) => c.category).toSet().toList();
-  }
-
-  // Фильтруем карточки
   List<Notes> get _filteredCards {
     var cards = _cardManager.getAllCards();
 
@@ -85,7 +79,7 @@ class _GotCardPageState extends State<GotCardPage> {
                             final card = cards[index];
 
                             return CategoryCard(
-                              isSelected: true,
+                              isSelected: false,
                               nameCategory: card.category,
                             );
                           },

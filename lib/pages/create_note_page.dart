@@ -1,5 +1,4 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/widgets/_categorySheet.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +28,6 @@ class CreateNotePage extends StatefulWidget {
 
 class _CreateNotePageState extends State<CreateNotePage> {
   final _formKey = GlobalKey<FormState>();
-  final _cardManager = CardManager();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _categoryNameController = TextEditingController();
@@ -37,7 +35,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   int _selectedCategoryId = 0;
 
-  // 👇 Типизированный список
+  // 👇 SТипизированный список
   final List<NoteCategory> _categories = [
     NoteCategory(
       id: 0,
