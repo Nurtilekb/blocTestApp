@@ -21,6 +21,16 @@ class DeleteNote extends NotesEvent {
   const DeleteNote(this.id);
 }
 
+class UpdateNoteCategory extends NotesEvent {
+  final String noteId;
+  final String newCategory;
+
+  UpdateNoteCategory({required this.noteId, required this.newCategory});
+
+  @override
+  List<Object> get props => [noteId, newCategory];
+}
+
 class SearchNotes extends NotesEvent {
   final String query;
   SearchNotes({required this.query}); // только именованный параметр

@@ -17,6 +17,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     on<DeleteNote>(_onDeleteNote);
     on<UpdateNote>(_onUpdateNote);
     on<SearchNotes>(_onSearchNotes);
+    on<UpdateNoteCategory>(_onUpdateNoteCategory);
   }
   Future<void> _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) async {
     emit(NotesLoading());
@@ -49,5 +50,19 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   ) async {
     final list = repository.searchNotes(event.query);
     emit(NotesLoaded(notes: list, searchQuery: event.query));
+  }
+
+  Future<void> _onUpdateNoteCategory(
+    UpdateNoteCategory event,
+    Emitter<NotesState> emit,
+  ) async {
+    final notes = repository.getNotes();
+    final index = notes.indexWhere((note) => note.id == event.noteId);
+
+    if (index != -1) {
+      notes[index].category = event.newCategory;
+      repository.updateNote(notes[index]);
+      emit(NotesLoaded(notes: notes));
+    }
   }
 }

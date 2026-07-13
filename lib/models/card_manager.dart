@@ -16,9 +16,6 @@ class CardManager {
     required String description,
     required String category,
     DateTime? date,
-    bool isFavorite = false,
-    String? imageUrl,
-    List<String>? tags,
   }) {
     final card = Notes(
       id: generateId(),
