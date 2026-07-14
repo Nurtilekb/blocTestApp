@@ -3,7 +3,6 @@ import 'package:bloctestapp/models/card_manager.dart';
 import 'package:bloctestapp/models/user.dart';
 import 'package:bloctestapp/pages/create_note_page.dart';
 import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
-import 'package:bloctestapp/widgets/category_list_cards.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,7 +16,7 @@ class GotCardPage extends StatefulWidget {
 class _GotCardPageState extends State<GotCardPage> {
   final _controller = ScrollController();
   final CardManager _cardManager = CardManager();
-  final String _searchQuery = '';
+  String _searchQuery = '';
   String? _selectedCategory;
 
   List<Notes> get _filteredCards {
@@ -37,7 +36,7 @@ class _GotCardPageState extends State<GotCardPage> {
     }
 
     // Фильтр по категории
-    if (_selectedCategory != null) {
+    if (_selectedCategory != null && _selectedCategory != 'Все') {
       cards = cards
           .where((card) => card.category == _selectedCategory)
           .toList();
@@ -70,55 +69,107 @@ class _GotCardPageState extends State<GotCardPage> {
                         }
 
                         final cards = state.notes;
+                        final categories = cards
+                            .map((card) => card.category)
+                            .toSet()
+                            .toList();
+
+                        // Добавляем "Все" в начало списка
+                        final allCategories = ['Все', ...categories];
 
                         return ListView.separated(
                           controller: _controller,
                           scrollDirection: Axis.horizontal,
-
-                          itemCount: cards
-                              .map((card) => card.category)
-                              .toSet()
-                              .length,
+                          itemCount: allCategories.length,
                           itemBuilder: (context, index) {
-                            final forCategory = cards
-                                .map((card) => card.category)
-                                .toSet()
-                                .toList();
+                            final category = allCategories[index];
+                            final isSelected = _selectedCategory == category;
 
-                            return CategoryCard(
-                              isSelected: false,
-                              nameCategory: forCategory[index],
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (category == 'Все') {
+                                    _selectedCategory = 'Все';
+                                  } else {
+                                    _selectedCategory = category;
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 17),
+                                decoration: BoxDecoration(
+                                  border: Border.all(width: 0.3),
+                                  color: isSelected
+                                      ? Theme.of(context)
+                                                .elevatedButtonTheme
+                                                .style!
+                                                .backgroundColor
+                                                ?.resolve({}) ??
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(25),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.04,
+                                      ),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.02,
+                                      ),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    category,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             );
                           },
-                          separatorBuilder: (_, _) => const SizedBox(width: 12),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 12),
                         );
                       },
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Expanded(
-                  child: SizedBox(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                      child: ListView.separated(
-                        itemCount: _filteredCards.length,
-
-                        itemBuilder: (context, index) {
-                          final card = _filteredCards[index];
-                          return CardsInPage(
-                            mainText: card.title,
-                            descripText: card.description,
-                            dateTime: _formatDate(card.date),
-
-                            categoryText: card.category,
-                            detterId: card.id,
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          return const SizedBox(height: 12);
-                        },
-                      ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: ListView.separated(
+                      controller: ScrollController(),
+                      itemCount: _filteredCards.length,
+                      itemBuilder: (context, index) {
+                        final card = _filteredCards[index];
+                        return CardsInPage(
+                          mainText: card.title,
+                          descripText: card.description,
+                          dateTime: _formatDate(card.date),
+                          categoryText: card.category,
+                          detterId: card.id,
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(height: 12);
+                      },
                     ),
                   ),
                 ),
@@ -143,7 +194,7 @@ class _GotCardPageState extends State<GotCardPage> {
                   ),
                   height: 70,
                   width: 70,
-                  child: Center(
+                  child: const Center(
                     child: Icon(Icons.add, color: Colors.white, size: 35),
                   ),
                 ),
