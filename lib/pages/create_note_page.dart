@@ -138,7 +138,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
             title: _titleController.text,
             description: _contentController.text,
             category: categoryName,
-            date: _selectedDate ?? DateTime.now(),
+            date: _selectedDate,
           ),
         ),
       );
@@ -262,7 +262,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
               height: 30,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                // 👈 Цвет КОНТЕЙНЕРА всегда синий (как было)
                 color: const Color.fromARGB(115, 187, 222, 251),
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
