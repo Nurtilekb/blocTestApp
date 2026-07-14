@@ -32,7 +32,7 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
   late final TextEditingController controller = TextEditingController(
     text: widget.title,
   );
-
+  final __controller = TextEditingController();
   late final TextEditingController controllerForContent = TextEditingController(
     text: widget.content,
   );
@@ -40,13 +40,14 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.category; // 👈 инициализируем категорию
+    _selectedCategory = widget.category;
   }
 
   @override
   void dispose() {
     controller.dispose();
     controllerForContent.dispose();
+    __controller.dispose();
     super.dispose();
   }
 
@@ -121,6 +122,7 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
               controllerForContent.text = widget.content;
               _selectedCategory = widget.category;
             });
+            Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey.shade300,
@@ -159,8 +161,11 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
         duration: Duration(seconds: 1),
       ),
     );
-
-    setState(() => isEditing = false);
+    setState(() {
+      isEditing = false;
+      updatedNote;
+    });
+    Navigator.pop(context);
   }
 
   // 👇 Верхняя панель с кнопками
@@ -229,57 +234,18 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
     );
   }
 
-  // 👇 Бейдж категории
   Widget _buildCategoryBadge() {
     return InkWell(
       borderRadius: const BorderRadius.all(Radius.circular(10)),
       onTap: () {
+        if (!isEditing) return; //  если не редактируем — выходим
+
         showModalBottomSheet(
           context: context,
           backgroundColor: Colors.transparent,
+          isScrollControlled: true,
           builder: (sheetContext) {
-            return Container(
-              padding: const EdgeInsets.all(28),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-              ),
-              child: BlocBuilder<NotesBloc, NotesState>(
-                builder: (context, state) {
-                  if (state is NotesLoaded) {
-                    final uniqueCategories = state.notes
-                        .map((note) => note.category)
-                        .toSet()
-                        .toList();
-
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Выберите категорию',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (uniqueCategories.isEmpty)
-                          const Center(child: Text('Нет категорий'))
-                        else
-                          ...uniqueCategories.map((category) {
-                            return _categoRyContainer(category, widget.idGeter);
-                          }),
-                      ],
-                    );
-                  }
-                  return const Center(child: CircularProgressIndicator());
-                },
-              ),
-            );
+            return _buildCategorySheet();
           },
         );
       },
@@ -296,8 +262,10 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Icon(Icons.folder_outlined, size: 14, color: widget.categoryColor),
+            const SizedBox(width: 6),
             Text(
-              _selectedCategory, // 👈 показываем актуальную категорию
+              _selectedCategory,
               style: TextStyle(
                 fontSize: 14,
                 color: widget.categoryColor,
@@ -311,7 +279,175 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
     );
   }
 
-  // 👇 Контейнер категории в списке
+  Widget _buildCategorySheet() {
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+      ),
+      child: BlocBuilder<NotesBloc, NotesState>(
+        builder: (context, state) {
+          if (state is NotesLoaded) {
+            final uniqueCategories = state.notes
+                .map((note) => note.category)
+                .toSet()
+                .toList();
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Индикатор
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Заголовок и кнопка "Добавить"
+                Row(
+                  children: [
+                    const Text(
+                      'Выберите категорию',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    _buildAddCategoryButton(),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Список категорий
+                if (uniqueCategories.isEmpty)
+                  const Center(child: Text('Нет категорий'))
+                else
+                  ...uniqueCategories.map((category) {
+                    return _categoRyContainer(category, widget.idGeter);
+                  }),
+              ],
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+
+  // 👇 Кнопка "Добавить категорию"
+  Widget _buildAddCategoryButton() {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (dialogContext) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text(
+                'Новая категория',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              content: TextField(
+                controller: __controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  hintText: 'Название категории...',
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    __controller.clear();
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Отмена'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final newCategory = __controller.text.trim();
+                    if (newCategory.isNotEmpty) {
+                      setState(() {
+                        _selectedCategory = newCategory;
+                      });
+
+                      context.read<NotesBloc>().add(
+                        UpdateNoteCategory(
+                          noteId: widget.idGeter,
+                          newCategory: newCategory,
+                        ),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('✅ Категория "$newCategory" добавлена'),
+                          backgroundColor: Colors.green,
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+
+                      __controller.clear();
+                      Navigator.pop(dialogContext);
+                      Navigator.pop(context); // Закрыть Bottom Sheet
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text('Сохранить'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.blue.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.add, size: 16, color: Colors.blue),
+            SizedBox(width: 4),
+            Text(
+              'Добавить',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _categoRyContainer(String categName, String noteId) {
     return InkWell(
       onTap: () {
@@ -363,6 +499,9 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
   Widget _buildTitle() {
     return isEditing
         ? TextField(
+            cursorColor: Theme.of(context).primaryColor,
+            autofocus: true,
+            cursorHeight: 30,
             decoration: const InputDecoration(
               hintText: 'Введите заголовок...',
               border: InputBorder.none,
@@ -370,7 +509,6 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
               contentPadding: EdgeInsets.symmetric(vertical: 12),
             ),
             controller: controller,
-            autofocus: true,
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w700,
@@ -389,7 +527,6 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
           );
   }
 
-  // 👇 Разделитель
   Widget _buildDivider() {
     return Container(
       height: 1,
@@ -397,13 +534,14 @@ class _NoteDetailPage2State extends State<NoteDetailPage2> {
     );
   }
 
-  // 👇 Контент заметки
   Widget _buildContent() {
     return Expanded(
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: isEditing
             ? TextField(
+                cursorHeight: 20,
+                cursorColor: Theme.of(context).primaryColor,
                 maxLines: null,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
