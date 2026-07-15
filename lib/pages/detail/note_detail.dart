@@ -10,6 +10,7 @@ import 'package:bloctestapp/widgets/card_dateail_widgets/detail_edit_buttons.dar
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/note.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloctestapp/constants/app_constants.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final String title;
@@ -42,32 +43,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   late final TextEditingController _contentController;
   final _categoryNameController = TextEditingController();
 
-  static const _defaultCategories = [
-    NoteCategory(
-      id: 0,
-      name: 'Личное',
-      icon: Icons.person,
-      color: Color(0xFF007AFF),
-    ),
-    NoteCategory(
-      id: 1,
-      name: 'Работа',
-      icon: Icons.work,
-      color: Color(0xFF34C759),
-    ),
-    NoteCategory(
-      id: 2,
-      name: 'Идеи',
-      icon: Icons.lightbulb,
-      color: Color(0xFFFF9500),
-    ),
-    NoteCategory(
-      id: 3,
-      name: 'Важное',
-      icon: Icons.star,
-      color: Color(0xFFFF3B30),
-    ),
-  ];
+  List<NoteCategory> get _defaultCategories => defaultCategories
+      .map((c) => NoteCategory(
+            id: c.index,
+            name: c['name'] as String,
+            icon: c['icon'] as IconData,
+            color: c['color'] as Color,
+          ))
+      .toList();
 
   @override
   void initState() {
