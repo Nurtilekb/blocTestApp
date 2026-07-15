@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloctestapp/constants/app_constants.dart';
 
-//  Модель категории
+// Модель категории (локальная для этого файла, если нет отдельного файла модели)
 class NoteCategory {
   final int id;
   final String name;
@@ -40,21 +40,24 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   List<NoteCategory> get _defaultCategories => defaultCategories
       .asMap()
-      .map((index, c) => MapEntry(
-            index,
-            NoteCategory(
-              id: index,
-              name: c['name'] as String,
-              icon: c['icon'] as IconData,
-              color: c['color'] as Color,
-            ),
-          ))
+      .map(
+        (index, c) => MapEntry(
+          index,
+          NoteCategory(
+            id: index,
+            name: c['name'] as String,
+            icon: c['icon'] as IconData,
+            color: c['color'] as Color,
+          ),
+        ),
+      )
       .values
       .toList();
 
   NoteCategory get _currentCategory => _categories.firstWhere(
     (c) => c.id == _selectedCategoryId,
-    orElse: () => _categories.first,
+    orElse: () =>
+        _categories.isNotEmpty ? _categories.first : _defaultCategories.first,
   );
 
   @override
@@ -143,28 +146,27 @@ class _CreateNotePageState extends State<CreateNotePage> {
       return;
     }
 
+    // Если в поле ввода есть текст, значит пользователь хочет создать новую категорию
     if (_categoryNameController.text.isNotEmpty) {
-      // 👇 СОХРАНЯЕМ НОВУЮ КАТЕГОРИЮ В HIVE
       final categoryName = _categoryNameController.text.trim();
       await CardManager().createCategory(categoryName);
       _categoryNameController.clear();
-    } else {
-      // 👇 ИСПОЛЬЗУЕМ ВЫБРАННУЮ
+      // Перезагружаем категории, чтобы получить новый ID и обновить список
+      _loadCategories();
     }
 
     final note = Notes(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       description: content,
-
       date: _selectedDate,
       category: _currentCategory.name,
     );
 
-    // ignore: use_build_context_synchronously
+    if (!mounted) return;
     context.read<NotesBloc>().add(AddNote(note));
 
-    // ignore: use_build_context_synchronously
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('✅ Карточка создана!'),
@@ -172,7 +174,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
       ),
     );
 
-    // ignore: use_build_context_synchronously
+    if (!mounted) return;
     Navigator.pop(context, true);
   }
 
@@ -188,25 +190,19 @@ class _CreateNotePageState extends State<CreateNotePage> {
         _buildCircleButton(
           icon: Icons.delete_outline_outlined,
           iconColor: Colors.red,
-
-          onTap: () {
-            Navigator.pop(context);
-          },
+          onTap: () => Navigator.pop(context),
         ),
         const SizedBox(width: 15),
         _buildCircleButton(
           icon: Icons.check,
           iconColor: Colors.white,
           backgroundColor: Theme.of(context).primaryColor,
-          onTap: () {
-            _saveCard();
-          },
+          onTap: _saveCard,
         ),
       ],
     );
   }
 
-  // 👇 Переиспользуемая круглая кнопка
   Widget _buildCircleButton({
     required IconData icon,
     required Color iconColor,
@@ -231,7 +227,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
   }
 
-  // 👇 Поле заголовка
   Widget _buildTitleField() {
     return TextFormField(
       autofocus: true,
@@ -280,8 +275,9 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       setState(() {
                         _selectedCategoryId = match.id;
                       });
+                      // Закрываем шторку после добавления (опционально)
+                      Navigator.pop(sheetContext);
                     },
-                    loadCategories: _categories,
                   );
                 },
               );
@@ -312,18 +308,13 @@ class _CreateNotePageState extends State<CreateNotePage> {
                     _currentCategory.name,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Color.fromARGB(
-                        255,
-                        69,
-                        100,
-                        240,
-                      ), // 👈 Синий текст
+                      color: Color.fromARGB(255, 69, 100, 240),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const Icon(
                     Icons.arrow_drop_down_rounded,
-                    color: Color.fromARGB(255, 69, 100, 240), // 👈 Синяя иконка
+                    color: Color.fromARGB(255, 69, 100, 240),
                   ),
                 ],
               ),
@@ -334,7 +325,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
   }
 
-  // 👇 Поле контента
   Widget _buildContentField() {
     return Expanded(
       child: TextFormField(

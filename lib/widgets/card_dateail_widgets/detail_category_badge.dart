@@ -42,10 +42,9 @@ class DetailCategoryBadge extends StatelessWidget {
               final selectedCategory = allCategories.firstWhere(
                 (cat) => cat.id == categoryId,
               );
-              onCategoryChanged(selectedCategory.name);
+              onCategoryChanged(categoryNameController.text);
             },
             onCategoryAdded: onCategoryAdded,
-            loadCategories: allCategories,
           ),
         );
       },

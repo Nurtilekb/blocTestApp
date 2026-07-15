@@ -1,4 +1,4 @@
-import 'package:bloctestapp/constants/app_constants.dart';
+import 'package:bloctestapp/constants/app_constants.dart'; // Убедитесь, что импорт есть
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/pages/create/create_note_page.dart';
 import 'package:bloctestapp/widgets/note_widget.dart';
@@ -13,6 +13,7 @@ class WithNotes extends StatefulWidget {
 }
 
 class _WithNotesState extends State<WithNotes> {
+  // По умолчанию выбрано "Все"
   String _selectedCategory = 'Все';
 
   @override
@@ -45,9 +46,30 @@ class _WithNotesState extends State<WithNotes> {
           builder: (context, state) {
             if (state is! NotesLoaded) return const SizedBox();
 
-            final userCategories =
-                state.notes.map((note) => note.category).toSet().toList();
-            final allCategories = {...defaultCategoryNames, ...userCategories}.toList();
+            // 1. Получаем уникальные категории пользователя
+            final userCategories = state.notes
+                .map((note) => note.category)
+                .toSet();
+
+            // 2. Формируем итоговый список вручную, чтобы контролировать порядок
+            final List<String> allCategories = [];
+
+            // Добавляем "Все" первым элементом
+            allCategories.add('Все');
+
+            // Добавляем стандартные категории из констант (если их нет у пользователя, они всё равно будут в меню)
+            for (var cat in defaultCategories) {
+              if (!allCategories.contains(cat['name'])) {
+                allCategories.add(cat['name'] as String);
+              }
+            }
+
+            // Добавляем пользовательские категории, которых нет в стандарте
+            for (var cat in userCategories) {
+              if (!allCategories.contains(cat)) {
+                allCategories.add(cat);
+              }
+            }
 
             return ListView.separated(
               scrollDirection: Axis.horizontal,
@@ -63,9 +85,13 @@ class _WithNotesState extends State<WithNotes> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         width: 0.3,
-                        color: isSelected ? Colors.transparent : Colors.grey[300]!,
+                        color: isSelected
+                            ? Colors.transparent
+                            : Colors.grey[300]!,
                       ),
-                      color: isSelected ? Theme.of(context).primaryColor : Colors.white,
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
@@ -81,15 +107,14 @@ class _WithNotesState extends State<WithNotes> {
                       ],
                     ),
                     child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          category,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            fontSize: 14,
-                          ),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -111,9 +136,15 @@ class _WithNotesState extends State<WithNotes> {
         builder: (context, state) {
           if (state is NotesLoaded) {
             var notes = state.notes;
+
+            // Фильтрация: если выбрано не "Все", фильтруем по категории
             if (_selectedCategory != 'Все') {
-              notes = notes.where((note) => note.category == _selectedCategory).toList();
+              notes = notes
+                  .where((note) => note.category == _selectedCategory)
+                  .toList();
             }
+
+            // Сортировка по дате
             notes.sort((a, b) => b.date.compareTo(a.date));
 
             if (notes.isEmpty) {
@@ -185,18 +216,46 @@ class _WithNotesState extends State<WithNotes> {
   }
 
   String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
+    const monthNames = [
+      'января',
+      'февраля',
+      'марта',
+      'апреля',
+      'мая',
+      'июня',
+      'июля',
+      'августа',
+      'сентября',
+      'октября',
+      'ноября',
+      'декабря',
+    ];
 
-    if (difference.inDays == 0) return 'Сегодня';
-    if (difference.inDays == 1) return 'Вчера';
-    if (difference.inDays < 7) {
-      return '${difference.inDays} ${_pluralize(difference.inDays)} назад';
-    }
-    return '${date.day}.${date.month}.${date.year}';
+    // Всегда возвращаем формат "5 июня"
+    return '${date.day} ${monthNames[date.month - 1]}';
   }
 
-  String _pluralize(int number) {
+  // Вспомогательный метод для формата "5 июня"
+  String _getFormattedDateOnly(DateTime date) {
+    const monthNames = [
+      'января',
+      'февраля',
+      'марта',
+      'апреля',
+      'мая',
+      'июня',
+      'июля',
+      'августа',
+      'сентября',
+      'октября',
+      'ноября',
+      'декабря',
+    ];
+    return '${date.day} ${monthNames[date.month - 1]}';
+  }
+
+  // Вспомогательный метод для склонения дней (если оставили логику "назад")
+  String _getDayWord(int number) {
     final n = number % 100;
     if (n >= 11 && n <= 19) return 'дней';
     final m = n % 10;

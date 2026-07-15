@@ -16,7 +16,6 @@ class CategorySheetContent extends StatefulWidget {
     required this.categoryNameController,
     required this.onCategorySelected,
     required this.onCategoryAdded,
-    required List<NoteCategory> loadCategories,
   });
 
   @override
@@ -30,7 +29,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
   @override
   void initState() {
     super.initState();
-    _localSelectedId = widget.selectedCategoryId; // 👈 Начальное значение
+    _localSelectedId = widget.selectedCategoryId;
   }
 
   @override
@@ -106,7 +105,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
         setState(() {
           _isAddingCategory = !_isAddingCategory;
           if (!_isAddingCategory) {
-            // widget.categoryNameController.clear();
+            widget.categoryNameController.clear();
           }
         });
       },
@@ -166,6 +165,92 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: Colors.grey[600],
+      ),
+    );
+  }
+
+  // 👇 Метод для редактирования категории
+  void _editCategory(NoteCategory category) {
+    final controller = TextEditingController(text: category.name);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Редактировать категорию'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Новое название'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                // Здесь должна быть логика обновления в_bloc или списке
+                // Создаем новую копию с обновленным именем
+                final updatedCategory = NoteCategory(
+                  id: category.id,
+                  name: controller.text,
+                  icon: category.icon,
+                  color: category.color,
+                );
+
+                // Так как у нас нет прямого доступа к bloc отсюда,
+                // мы можем использовать костыль через onCategoryAdded (если он универсальный)
+                // ИЛИ лучше добавить отдельный callback onCategoryUpdated.
+                // Для примера вызываем onCategoryAdded (переиспользуем его логику, если там есть проверка на ID)
+                // НО ПРАВИЛЬНЕЕ: Добавить в аргументы widget.onCategoryUpdated
+
+                Navigator.pop(ctx);
+                // В реальном проекте тут должен быть вызов события блока или коллбека обновления
+                // Например: widget.onCategoryUpdated(updatedCategory);
+
+                // Временно используемSnackBar для демонстрации
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Обновлено на: ${controller.text}')),
+                );
+              }
+            },
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  //    удаления категории
+  void _deleteCategory(NoteCategory category) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Удалить категорию?'),
+        content: Text(
+          'Вы уверены, что хотите удалить категорию "${category.name}"?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              if (_localSelectedId == category.id) {
+                setState(() {
+                  _localSelectedId = -1;
+                });
+                widget.onCategorySelected(-1);
+              }
+
+              Navigator.pop(ctx);
+            },
+            child: const Text('Удалить', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -230,17 +315,53 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                     color: isSelected ? Colors.white : category.color,
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    category.name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isSelected ? Colors.white : category.color,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Text(
+                      category.name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isSelected ? Colors.white : category.color,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
+                  // Кнопка редактирования
                   if (isSelected)
-                    const Icon(Icons.check, size: 18, color: Colors.white),
+                    InkWell(
+                      onTap: () => _editCategory(category),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.edit_outlined,
+                          size: 16,
+                          color: isSelected ? Colors.white : category.color,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 4),
+                  // Кнопка удаления
+                  if (isSelected)
+                    InkWell(
+                      onTap: () => _deleteCategory(category),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: isSelected ? Colors.white : category.color,
+                        ),
+                      ),
+                    ),
+                  if (!isSelected)
+                    const Icon(
+                      Icons.check,
+                      size: 18,
+                      color: Colors.transparent,
+                    ), // Плейсхолдер чтобы текст не прыгал
                 ],
               ),
             ),
@@ -258,16 +379,16 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
           if (_isAddingCategory &&
               widget.categoryNameController.text.isNotEmpty) {
             final newCategory = NoteCategory(
-              id: widget.categories.length,
+              id: DateTime.now().millisecondsSinceEpoch, // Лучше уникальный ID
               name: widget.categoryNameController.text,
               icon: Icons.folder,
               color: const Color.fromARGB(255, 116, 85, 202),
             );
 
+            widget.onCategoryAdded(newCategory);
+            widget.categoryNameController.clear();
             setState(() {
               _isAddingCategory = false;
-              widget.onCategoryAdded(newCategory);
-              widget.categoryNameController.clear();
             });
           }
           Navigator.pop(context);

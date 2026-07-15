@@ -45,15 +45,17 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   List<NoteCategory> get _defaultCategories => defaultCategories
       .asMap()
-      .map((index, c) => MapEntry(
-            index,
-            NoteCategory(
-              id: index,
-              name: c['name'] as String,
-              icon: c['icon'] as IconData,
-              color: c['color'] as Color,
-            ),
-          ))
+      .map(
+        (index, c) => MapEntry(
+          index,
+          NoteCategory(
+            id: index,
+            name: c['name'] as String,
+            icon: c['icon'] as IconData,
+            color: c['color'] as Color,
+          ),
+        ),
+      )
       .values
       .toList();
 
@@ -122,6 +124,28 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     );
     setState(() {
       _selectedCategory = match.name;
+    });
+  }
+
+  void _onCategoryDeleted(int id) async {
+    await CardManager().deleteCategory(id);
+    _loadCategories();
+    if (_allCategories.isEmpty) return;
+    final deletedName = _selectedCategory;
+    final stillExists = _allCategories.any((c) => c.name == deletedName);
+    if (!stillExists) {
+      setState(() {
+        _selectedCategory = _allCategories.first.name;
+      });
+    }
+  }
+
+  void _onCategoryUpdated(NoteCategory updated) async {
+    await CardManager().updateCategory(updated.id, updated.name);
+    _loadCategories();
+    if (_selectedCategory == updated.name) return;
+    setState(() {
+      _selectedCategory = updated.name;
     });
   }
 

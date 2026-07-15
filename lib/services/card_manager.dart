@@ -59,4 +59,16 @@ class CardManager {
     await _categoriesBox.put(category.id, category);
     return category;
   }
+
+  Future<void> deleteCategory(int id) async {
+    await _categoriesBox.delete(id);
+  }
+
+  Future<void> updateCategory(int id, String newName) async {
+    final category = _categoriesBox.get(id);
+    if (category != null) {
+      final updated = CategoryModel(id: category.id, name: newName);
+      await _categoriesBox.put(id, updated);
+    }
+  }
 }
