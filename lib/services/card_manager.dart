@@ -1,4 +1,4 @@
-import 'package:bloctestapp/models/user.dart';
+import 'package:bloctestapp/models/note.dart';
 import 'package:hive/hive.dart';
 
 class CardManager {

@@ -1,10 +1,10 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/models/user.dart';
-import 'package:bloctestapp/widgets/_categorySheet.dart';
+import 'package:bloctestapp/models/note.dart';
+import 'package:bloctestapp/widgets/card_dateail_widgets/category_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// 👇 Модель категории
+//  Модель категории
 class NoteCategory {
   final int id;
   final String name;
@@ -35,7 +35,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   int _selectedCategoryId = 0;
 
-  // 👇 SТипизированный список
   final List<NoteCategory> _categories = [
     NoteCategory(
       id: 0,
@@ -63,7 +62,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
     ),
   ];
 
-  // 👇 Getter для текущей категории
   NoteCategory get _currentCategory => _categories.firstWhere(
     (c) => c.id == _selectedCategoryId,
     orElse: () => _categories.first,
@@ -104,56 +102,64 @@ class _CreateNotePageState extends State<CreateNotePage> {
   }
 
   void _saveCard() {
-    if (_formKey.currentState!.validate()) {
-      String categoryName;
+    final title = _titleController.text.trim();
+    final content = _contentController.text.trim();
 
-      // 👇 Проверяем, есть ли название в контроллере (новая категория)
-      if (_categoryNameController.text.isNotEmpty) {
-        // Если пользователь добавил новую категорию
-        categoryName = _categoryNameController.text;
-
-        // Добавляем новую категорию в список
-        final newCategory = NoteCategory(
-          id: _categories.length,
-          name: _categoryNameController.text,
-          icon: Icons.folder,
-          color: Colors.teal,
-        );
-        setState(() {
-          _categories.add(newCategory);
-          _selectedCategoryId = newCategory.id;
-        });
-
-        // Очищаем контроллер
-        _categoryNameController.clear();
-      } else {
-        // 👇 Используем текущую выбранную категорию (или первую по умолчанию)
-        categoryName = _currentCategory.name;
-      }
-
-      context.read<NotesBloc>().add(
-        AddNote(
-          Notes(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            title: _titleController.text,
-            description: _contentController.text,
-            category: categoryName,
-            date: _selectedDate,
-          ),
-        ),
-      );
+    // Нельзя сохранить полностью пустую заметку
+    if (title.isEmpty && content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✅ Карточка создана!'),
-          backgroundColor: Colors.green,
+        const SnackBar(
+          content: Text('Введите заголовок или текст заметки'),
+          backgroundColor: Colors.red,
         ),
       );
-
-      Navigator.pop(context, true);
+      return;
     }
+
+    String categoryName;
+
+    if (_categoryNameController.text.isNotEmpty) {
+      categoryName = _categoryNameController.text;
+
+      final newCategory = NoteCategory(
+        id: _categories.length,
+        name: _categoryNameController.text,
+        icon: Icons.folder,
+        color: Colors.teal,
+      );
+
+      setState(() {
+        _categories.add(newCategory);
+        _selectedCategoryId = newCategory.id;
+      });
+
+      _categoryNameController.clear();
+    } else {
+      categoryName = _currentCategory.name;
+    }
+
+    context.read<NotesBloc>().add(
+      AddNote(
+        Notes(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: title,
+          description: content,
+          category: categoryName,
+          date: _selectedDate,
+        ),
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Карточка создана!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.pop(context, true);
   }
 
-  // 👇 Верхняя панель
   Widget _buildTopBar() {
     return Row(
       children: [
@@ -211,7 +217,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   // 👇 Поле заголовка
   Widget _buildTitleField() {
-    return TextField(
+    return TextFormField(
       autofocus: true,
       cursorHeight: 30,
       cursorColor: Theme.of(context).primaryColor,
@@ -309,7 +315,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
   // 👇 Поле контента
   Widget _buildContentField() {
     return Expanded(
-      child: TextField(
+      child: TextFormField(
         cursorHeight: 20,
         cursorColor: Theme.of(context).primaryColor,
         controller: _contentController,

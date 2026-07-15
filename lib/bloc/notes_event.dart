@@ -25,7 +25,7 @@ class UpdateNoteCategory extends NotesEvent {
   final String noteId;
   final String newCategory;
 
-  UpdateNoteCategory({required this.noteId, required this.newCategory});
+  const UpdateNoteCategory({required this.noteId, required this.newCategory});
 
   @override
   List<Object> get props => [noteId, newCategory];
@@ -33,7 +33,7 @@ class UpdateNoteCategory extends NotesEvent {
 
 class SearchNotes extends NotesEvent {
   final String query;
-  SearchNotes({required this.query}); // только именованный параметр
+  const SearchNotes({required this.query}); // только именованный параметр
 
   @override
   List<Object> get props => [query]; // строго List<Object>

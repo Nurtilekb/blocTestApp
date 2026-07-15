@@ -1,5 +1,5 @@
-import '../models/card_manager.dart';
-import '../models/user.dart';
+import '../../services/card_manager.dart';
+import '../../models/note.dart';
 
 class NotesRepository {
   final CardManager manager;

@@ -1,11 +1,11 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/pages/card_detail.dart';
+import 'package:bloctestapp/pages/detail/note_detail.dart';
 import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CardsInPage extends StatefulWidget {
-  const CardsInPage({
+class NoteCardWidget extends StatefulWidget {
+  const NoteCardWidget({
     super.key,
     required this.mainText,
     required this.descripText,
@@ -19,10 +19,10 @@ class CardsInPage extends StatefulWidget {
   final String categoryText;
   final String detterId;
   @override
-  State<CardsInPage> createState() => _CardsInPageState();
+  State<NoteCardWidget> createState() => _CardsInPageState();
 }
 
-class _CardsInPageState extends State<CardsInPage> {
+class _CardsInPageState extends State<NoteCardWidget> {
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -32,7 +32,7 @@ class _CardsInPageState extends State<CardsInPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NoteDetailPage2(
+              builder: (context) => NoteDetailPage(
                 title: widget.mainText,
                 content: widget.descripText,
                 category: widget.categoryText,

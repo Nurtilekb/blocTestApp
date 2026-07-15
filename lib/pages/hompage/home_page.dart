@@ -1,14 +1,12 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/pages/2_states_of_home_page/got_card.dart';
-import 'package:bloctestapp/pages/2_states_of_home_page/withOut_notes.dart';
-import 'package:bloctestapp/pages/search_page.dart';
+import 'package:bloctestapp/pages/hompage/with_notes.dart';
+import 'package:bloctestapp/pages/hompage/without_notes.dart';
+import 'package:bloctestapp/pages/search/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +20,7 @@ class MyHomePage extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                title,
+                'Заметки',
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
@@ -60,7 +58,7 @@ class MyHomePage extends StatelessWidget {
               return WithOutNotes();
             }
 
-            return GotCardPage();
+            return WithNotes();
           }
 
           if (state is NotesError) {

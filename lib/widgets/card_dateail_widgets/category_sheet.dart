@@ -1,4 +1,4 @@
-import 'package:bloctestapp/pages/create_note_page.dart';
+import 'package:bloctestapp/pages/create/create_note_page.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -25,41 +25,64 @@ class CategorySheetContent extends StatefulWidget {
 class _CategorySheetContentState extends State<CategorySheetContent> {
   bool _isAddingCategory = false;
   late int _localSelectedId;
-
+  late List<NoteCategory> _allCategories;
   @override
   void initState() {
     super.initState();
     _localSelectedId = widget.selectedCategoryId; // 👈 Начальное значение
   }
 
+  void _addCategory(String name) {
+    final newId = _allCategories.isEmpty
+        ? 0
+        : _allCategories.map((c) => c.id).reduce((a, b) => a > b ? a : b) + 1;
+
+    final newCategory = NoteCategory(
+      id: newId,
+      name: name,
+      icon: Icons.folder,
+      color: Colors.teal,
+    );
+
+    setState(() {
+      _allCategories.add(newCategory);
+      _localSelectedId = newId;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHandle(),
-          const SizedBox(height: 20),
-          _buildHeader(),
-          const SizedBox(height: 12),
-          _buildAddCategoryField(),
-          if (!_isAddingCategory) ...[
-            _buildCategoryLabel(),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHandle(),
+            const SizedBox(height: 20),
+            _buildHeader(),
             const SizedBox(height: 12),
-            _buildCategoryChips(),
+            _buildAddCategoryField(),
+            if (!_isAddingCategory) ...[
+              _buildCategoryLabel(),
+              const SizedBox(height: 12),
+              _buildCategoryChips(),
+            ],
+            const SizedBox(height: 24),
+            _buildSaveButton(),
           ],
-          const SizedBox(height: 24),
-          _buildSaveButton(),
-        ],
+        ),
       ),
     );
   }

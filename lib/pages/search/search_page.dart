@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
-import 'package:bloctestapp/widgets/cards_in_mainpages.dart';
+import 'package:bloctestapp/widgets/note_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,7 +16,7 @@ class _SearchPageState extends State<SearchPage> {
   final _searchController = TextEditingController();
   Timer? _debounce;
   String _searchQuery = '';
-  String _lastSearchedQuery = ''; // 👈 реально выполненный запрос
+  String _lastSearchedQuery = '';
 
   @override
   void dispose() {
@@ -32,10 +32,8 @@ class _SearchPageState extends State<SearchPage> {
 
     _debounce = Timer(const Duration(seconds: 1), () {
       if (value.isEmpty) return;
-      _lastSearchedQuery = value; // запоминаем запрос
-      context.read<NotesBloc>().add(
-        SearchNotes(query: value),
-      ); // передаём только query
+      _lastSearchedQuery = value;
+      context.read<NotesBloc>().add(SearchNotes(query: value));
     });
   }
 
@@ -77,7 +75,6 @@ class _SearchPageState extends State<SearchPage> {
               Expanded(
                 child: BlocBuilder<NotesBloc, NotesState>(
                   builder: (context, state) {
-                    // Если строка поиска пустая — подсказка
                     if (_searchQuery.isEmpty) {
                       return const Center(
                         child: Text(
@@ -87,8 +84,6 @@ class _SearchPageState extends State<SearchPage> {
                       );
                     }
 
-                    // Показываем загрузку, если состояние не NotesLoaded
-                    // или если результат не соответствует последнему запросу
                     if (state is NotesLoaded) {
                       if (state.searchQuery != _lastSearchedQuery) {
                         return const Center(child: CircularProgressIndicator());
@@ -108,7 +103,7 @@ class _SearchPageState extends State<SearchPage> {
                         itemCount: notes.length,
                         itemBuilder: (context, index) {
                           final note = notes[index];
-                          return CardsInPage(
+                          return NoteCardWidget(
                             mainText: note.title,
                             descripText: note.description,
                             dateTime:
@@ -123,7 +118,6 @@ class _SearchPageState extends State<SearchPage> {
                       );
                     }
 
-                    // Обработка ошибки
                     if (state is NotesError) {
                       return Center(
                         child: Text(
@@ -133,7 +127,6 @@ class _SearchPageState extends State<SearchPage> {
                       );
                     }
 
-                    // Все остальные случаи — загрузка
                     return const Center(child: CircularProgressIndicator());
                   },
                 ),

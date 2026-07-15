@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'user.g.dart'; // Это важно! Ссылка на сгенерированный файл
+part 'note.g.dart'; // Это важно! Ссылка на сгенерированный файл
 
 @HiveType(typeId: 0)
 class Notes {
@@ -61,7 +61,7 @@ class Notes {
       title: json['title'],
       description: json['description'],
       category: json['category'],
-      date: DateTime.parse(json['date']),
+      date: DateTime.fromMicrosecondsSinceEpoch(json['date'] as int),
     );
   }
 }

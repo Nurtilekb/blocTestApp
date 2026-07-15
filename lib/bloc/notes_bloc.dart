@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
-import 'package:bloctestapp/bloc/notes_repository.dart';
-import 'package:bloctestapp/models/card_manager.dart';
-import 'package:bloctestapp/models/user.dart';
+import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloctestapp/models/note.dart';
 import 'package:equatable/equatable.dart';
 
 part 'notes_event.dart';
@@ -11,6 +10,7 @@ part 'notes_state.dart';
 
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
   final NotesRepository repository;
+  final Set<String> _usedCategories = {'Личное', 'Работа', 'Идеи', 'Важное'};
   NotesBloc(this.repository) : super(NotesLoading()) {
     on<LoadNotes>(_onLoadNotes);
     on<AddNote>(_onAddNote);
@@ -62,7 +62,14 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     if (index != -1) {
       notes[index].category = event.newCategory;
       repository.updateNote(notes[index]);
-      emit(NotesLoaded(notes: notes));
+      _usedCategories.add(event.newCategory); // 👈 запоминаем новую категорию
     }
+
+    emit(
+      NotesLoaded(
+        notes: repository.getNotes(),
+        allCategories: _usedCategories.toList(), // 👈 все категории
+      ),
+    );
   }
 }

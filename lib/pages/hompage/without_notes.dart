@@ -1,4 +1,4 @@
-import 'package:bloctestapp/pages/create_note_page.dart';
+import 'package:bloctestapp/pages/create/create_note_page.dart';
 import 'package:flutter/material.dart';
 
 class WithOutNotes extends StatelessWidget {

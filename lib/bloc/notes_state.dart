@@ -14,11 +14,22 @@ final class NotesLoading extends NotesState {
 class NotesLoaded extends NotesState {
   final List<Notes> notes;
   final String searchQuery;
+  final List<String>
+  allCategories; // 👈 ВСЕ категории (дефолтные + использованные)
 
-  NotesLoaded({required this.notes, this.searchQuery = ''});
+  const NotesLoaded({
+    required this.notes,
+    this.searchQuery = '',
+    this.allCategories = const [
+      'Личное',
+      'Работа',
+      'Идеи',
+      'Важное',
+    ], // 👈 дефолтные
+  });
 
   @override
-  List<Object> get props => [notes, searchQuery]; // List<Object>, не Object?
+  List<Object> get props => [notes, searchQuery, allCategories];
 }
 
 final class NotesError extends NotesState {
