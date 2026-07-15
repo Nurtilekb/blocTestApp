@@ -39,12 +39,17 @@ class _CreateNotePageState extends State<CreateNotePage> {
   List<NoteCategory> _categories = [];
 
   List<NoteCategory> get _defaultCategories => defaultCategories
-      .map((c) => NoteCategory(
-            id: c.index,
-            name: c['name'] as String,
-            icon: c['icon'] as IconData,
-            color: c['color'] as Color,
+      .asMap()
+      .map((index, c) => MapEntry(
+            index,
+            NoteCategory(
+              id: index,
+              name: c['name'] as String,
+              icon: c['icon'] as IconData,
+              color: c['color'] as Color,
+            ),
           ))
+      .values
       .toList();
 
   NoteCategory get _currentCategory => _categories.firstWhere(

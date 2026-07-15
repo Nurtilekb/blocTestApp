@@ -44,12 +44,17 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   final _categoryNameController = TextEditingController();
 
   List<NoteCategory> get _defaultCategories => defaultCategories
-      .map((c) => NoteCategory(
-            id: c.index,
-            name: c['name'] as String,
-            icon: c['icon'] as IconData,
-            color: c['color'] as Color,
+      .asMap()
+      .map((index, c) => MapEntry(
+            index,
+            NoteCategory(
+              id: index,
+              name: c['name'] as String,
+              icon: c['icon'] as IconData,
+              color: c['color'] as Color,
+            ),
           ))
+      .values
       .toList();
 
   @override
