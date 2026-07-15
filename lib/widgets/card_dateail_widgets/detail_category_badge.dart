@@ -11,6 +11,8 @@ class DetailCategoryBadge extends StatelessWidget {
   final TextEditingController categoryNameController;
   final ValueChanged<String> onCategoryChanged;
   final ValueChanged<NoteCategory> onCategoryAdded;
+  final ValueChanged<NoteCategory>? onCategoryUpdated;
+  final ValueChanged<int>? onCategoryDeleted;
 
   const DetailCategoryBadge({
     super.key,
@@ -22,6 +24,8 @@ class DetailCategoryBadge extends StatelessWidget {
     required this.categoryNameController,
     required this.onCategoryChanged,
     required this.onCategoryAdded,
+    this.onCategoryUpdated,
+    this.onCategoryDeleted,
   });
 
   @override
@@ -42,9 +46,11 @@ class DetailCategoryBadge extends StatelessWidget {
               final selectedCategory = allCategories.firstWhere(
                 (cat) => cat.id == categoryId,
               );
-              onCategoryChanged(categoryNameController.text);
+              onCategoryChanged(selectedCategory.name);
             },
             onCategoryAdded: onCategoryAdded,
+            onCategoryUpdated: onCategoryUpdated,
+            onCategoryDeleted: onCategoryDeleted,
           ),
         );
       },

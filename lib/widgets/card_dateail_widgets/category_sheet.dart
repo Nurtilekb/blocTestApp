@@ -8,6 +8,8 @@ class CategorySheetContent extends StatefulWidget {
   final TextEditingController categoryNameController;
   final ValueChanged<int> onCategorySelected;
   final ValueChanged<NoteCategory> onCategoryAdded;
+  final ValueChanged<NoteCategory>? onCategoryUpdated;
+  final ValueChanged<int>? onCategoryDeleted;
 
   const CategorySheetContent({
     super.key,
@@ -16,6 +18,8 @@ class CategorySheetContent extends StatefulWidget {
     required this.categoryNameController,
     required this.onCategorySelected,
     required this.onCategoryAdded,
+    this.onCategoryUpdated,
+    this.onCategoryDeleted,
   });
 
   @override
@@ -190,8 +194,6 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
           ElevatedButton(
             onPressed: () {
               if (controller.text.isNotEmpty) {
-                // Здесь должна быть логика обновления в_bloc или списке
-                // Создаем новую копию с обновленным именем
                 final updatedCategory = NoteCategory(
                   id: category.id,
                   name: controller.text,
@@ -199,20 +201,11 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                   color: category.color,
                 );
 
-                // Так как у нас нет прямого доступа к bloc отсюда,
-                // мы можем использовать костыль через onCategoryAdded (если он универсальный)
-                // ИЛИ лучше добавить отдельный callback onCategoryUpdated.
-                // Для примера вызываем onCategoryAdded (переиспользуем его логику, если там есть проверка на ID)
-                // НО ПРАВИЛЬНЕЕ: Добавить в аргументы widget.onCategoryUpdated
+                if (widget.onCategoryUpdated != null) {
+                  widget.onCategoryUpdated!(updatedCategory);
+                }
 
                 Navigator.pop(ctx);
-                // В реальном проекте тут должен быть вызов события блока или коллбека обновления
-                // Например: widget.onCategoryUpdated(updatedCategory);
-
-                // Временно используемSnackBar для демонстрации
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Обновлено на: ${controller.text}')),
-                );
               }
             },
             child: const Text('Сохранить'),
@@ -244,6 +237,10 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                   _localSelectedId = -1;
                 });
                 widget.onCategorySelected(-1);
+              }
+
+              if (widget.onCategoryDeleted != null) {
+                widget.onCategoryDeleted!(category.id);
               }
 
               Navigator.pop(ctx);
