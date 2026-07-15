@@ -4,55 +4,165 @@
 __pycache__/
 *.o
 *.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+.env.*
+
+# Build outputs
 dist/
 build/
 target/
+.gradle/
 
-# Dependencies
-.venv/
-venv/
-node_modules/
-.julia/
-.zig-cache/
+# Python specific
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.Python
+*.egg-info/
+.eggs/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage/
+
+# Dart/Flutter specific
+.dart_tool/
+.packages
+.pub/
+build/
+*.g.dart
+*.freezed.dart
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
+*.swo
 
-# Environment
-.env
-.env.local
-*.env.*
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+.directory
+.Trashes
+*.nib
+.vfs-cache
+.volatile-profile
 
-# Editors
+# Editor related
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+*.pyc
+*.pyo
+*.pyd
+*.py.class
+*.so
+*.dylib
+*.dll
+*.exe
+*.o
+*.obj
+*.a
+*.lib
+*.out
+*.app
+*.bin
+*.jar
+*.war
+*.class
+*.iml
+*.ipr
+*.iws
+*.suo
+*.sln
+*.csproj
+*.csproj.user
+*.vbproj
+*.vbproj.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.cache
+*.lock
+*.db
+*.db-journal
+*.tmp
+*.temp
+*.log
+*.backup
+*.bak
+*.old
+*.orig
+*.rej
+*.diff
+*.patch
+*.swp
+*.swo
+*~
+.\#*
+.\#*
+*~
+*.tmp
+*.temp
+*.log
+*.backup
+*.bak
+*.old
+*.orig
+*.rej
+*.diff
+*.patch
+*.swp
+*.swo
+*~
+.\#*
+.\#*
+*~
+*.tmp
+*.temp
+*.log
+*.backup
+*.bak
+*.old
+*.orig
+*.rej
+*.diff
+*.patch
+*.swp
+*.swo
+*~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Coverage
+# Coverage reports
 coverage/
 htmlcov/
-.coverage
-
-# Python specific
-*.pyc
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-
-# Dart/Flutter specific
-.dart_tool/
-.packages
-.pub-cache/
-pubspec.lock
-
-# Compressed files
+*.cover
+*.gcov
+*.lcov
+*.tfstate
+*.tfstate.backup
 *.zip
 *.gz
 *.tar
