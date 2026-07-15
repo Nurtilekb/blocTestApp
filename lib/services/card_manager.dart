@@ -1,115 +1,62 @@
+// services/card_manager.dart
+import 'package:bloctestapp/models/category_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bloctestapp/models/note.dart';
-import 'package:hive/hive.dart';
 
 class CardManager {
-  // Получаем коробку
-  final Box<Notes> cardsBox = Hive.box<Notes>('cardsBox');
+  Box<Notes> get _notesBox => Hive.box<Notes>('notesBox');
+  Box<CategoryModel> get _categoriesBox =>
+      Hive.box<CategoryModel>('categoriesBox');
 
-  // Генерация уникального ID
-  String generateId() {
-    return DateTime.now().millisecondsSinceEpoch.toString();
+  // ========== ЗАМЕТКИ ==========
+  List<Notes> getAllNotes() => _notesBox.values.toList();
+
+  void addNote(Notes note) => _notesBox.put(note.id, note);
+
+  void updateNote(Notes note) => _notesBox.put(note.id, note);
+
+  void deleteNote(String id) => _notesBox.delete(id);
+
+  List<Notes> searchNotes(String query) {
+    return _notesBox.values.where((note) {
+      return note.title.toLowerCase().contains(query.toLowerCase()) ||
+          note.description.toLowerCase().contains(query.toLowerCase());
+    }).toList();
   }
 
-  // СОЗДАНИЕ карточки
-  void createCard({
-    required String title,
-    required String description,
-    required String category,
-    DateTime? date,
-  }) {
-    final card = Notes(
-      id: generateId(),
-      title: title,
-      description: description,
-      category: category,
-      date: date ?? DateTime.now(),
-    );
-
-    cardsBox.put(card.id, card);
-    print('✅ Карточка создана: ${card.title}');
-  }
-
-  // ПОЛУЧЕНИЕ всех карточек
-  List<Notes> getAllCards() {
-    return cardsBox.values.toList();
-  }
-
-  // ПОЛУЧЕНИЕ карточки по ID
-  Notes? getCardById(String id) {
-    return cardsBox.get(id);
-  }
-
-  // ОБНОВЛЕНИЕ карточки
-  void updateCard(Notes updatedCard) {
-    cardsBox.put(updatedCard.id, updatedCard);
-    print('✅ Карточка обновлена: ${updatedCard.title}');
-  }
-
-  // УДАЛЕНИЕ карточки
-  void deleteCard(String id) {
-    cardsBox.delete(id);
-    print('🗑️ Карточка удалена: $id');
-  }
-
-  // УДАЛЕНИЕ всех карточек
-  void deleteAllCards() {
-    cardsBox.clear();
-    print('🗑️ Все карточки удалены');
-  }
-
-  // ФИЛЬТРАЦИЯ по категории
-  List<Notes> getCardsByCategory(String category) {
-    return cardsBox.values.where((card) => card.category == category).toList();
-  }
-
-  // ПОИСК по названию или описанию
-  List<Notes> searchCards(String query) {
-    if (query.isEmpty) return getAllCards();
-
-    return cardsBox.values
-        .where(
-          (card) =>
-              card.title.toLowerCase().contains(query.toLowerCase()) ||
-              card.description.toLowerCase().contains(query.toLowerCase()) ||
-              card.category.toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
-  }
-
-  // ПОЛУЧЕНИЕ карточек по диапазону дат
-  List<Notes> getCardsByDateRange(DateTime start, DateTime end) {
-    return cardsBox.values
-        .where((card) => card.date.isAfter(start) && card.date.isBefore(end))
-        .toList();
-  }
-
-  // ГРУППИРОВКА по категориям
-  Map<String, List<Notes>> groupCardsByCategory() {
-    final Map<String, List<Notes>> grouped = {};
-
-    for (var card in cardsBox.values) {
-      if (!grouped.containsKey(card.category)) {
-        grouped[card.category] = [];
-      }
-      grouped[card.category]!.add(card);
+  void updateNoteCategory(String noteId, int newCategoryId) {
+    final note = _notesBox.get(noteId);
+    if (note != null) {
+      final updatedNote = Notes(
+        id: note.id,
+        title: note.title,
+        description: note.description,
+        category: newCategoryId.toString(),
+        date: note.date,
+      );
+      _notesBox.put(noteId, updatedNote);
     }
-
-    return grouped;
   }
 
-  // ПОЛУЧЕНИЕ статистики
-  Map<String, dynamic> getStatistics() {
-    final allCards = getAllCards();
-    final categories = allCards.map((c) => c.category).toSet();
+  // ========== КАТЕГОРИИ ==========
+  List<CategoryModel> getAllCategories() {
+    final list = _categoriesBox.values.toList();
+    list.sort((a, b) => a.id.compareTo(b.id));
+    return list;
+  }
 
-    return {
-      'total': allCards.length,
-      'categories': categories.length,
-      'recent': allCards
-          .where(
-            (c) => c.date.isAfter(DateTime.now().subtract(Duration(days: 7))),
-          )
-          .length,
-    };
+  CategoryModel? getCategoryById(int id) => _categoriesBox.get(id);
+
+  Future<CategoryModel> createCategory(String name) async {
+    final nextId = _categoriesBox.isEmpty
+        ? 4
+        : _categoriesBox.values
+                  .map((c) => c.id)
+                  .reduce((a, b) => a > b ? a : b) +
+              1;
+
+    final category = CategoryModel(id: nextId, name: name);
+    await _categoriesBox.put(category.id, category);
+    return category;
   }
 }

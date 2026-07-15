@@ -7,11 +7,10 @@ class DetailCategoryBadge extends StatelessWidget {
   final Color categoryColor;
   final String idGeter;
   final bool isEditing;
-  final List<NoteCategory> allCategories; // 👈 список ВСЕХ категорий
-  final TextEditingController
-  categoryNameController; // 👈 контроллер для новой категории
+  final List<NoteCategory> allCategories;
+  final TextEditingController categoryNameController;
   final ValueChanged<String> onCategoryChanged;
-  final ValueChanged<NoteCategory> onCategoryAdded; // 👈 для добавления новой
+  final ValueChanged<NoteCategory> onCategoryAdded;
 
   const DetailCategoryBadge({
     super.key,
@@ -46,15 +45,19 @@ class DetailCategoryBadge extends StatelessWidget {
               onCategoryChanged(selectedCategory.name);
             },
             onCategoryAdded: onCategoryAdded,
+            loadCategories: allCategories,
           ),
         );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 3),
         decoration: BoxDecoration(
-          color: categoryColor.withOpacity(0.1),
+          color: categoryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: categoryColor.withOpacity(0.3), width: 0.5),
+          border: Border.all(
+            color: categoryColor.withValues(alpha: 0.3),
+            width: 0.5,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

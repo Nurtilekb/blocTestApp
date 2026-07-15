@@ -1,5 +1,6 @@
 import 'package:bloctestapp/pages/create/create_note_page.dart'
     show NoteCategory;
+import 'package:bloctestapp/services/card_manager.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/detail_tittle_field.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/tab_bar_view.dart';
 import 'package:flutter/material.dart';
@@ -35,27 +36,32 @@ class NoteDetailPage extends StatefulWidget {
 class _NoteDetailPageState extends State<NoteDetailPage> {
   bool isEditing = false;
   String _selectedCategory = '';
+  List<NoteCategory> _allCategories = [];
 
-  final List<NoteCategory> _allCategories = [
-    const NoteCategory(
+  late final TextEditingController _titleController;
+  late final TextEditingController _contentController;
+  final _categoryNameController = TextEditingController();
+
+  static const _defaultCategories = [
+    NoteCategory(
       id: 0,
       name: 'Личное',
       icon: Icons.person,
       color: Color(0xFF007AFF),
     ),
-    const NoteCategory(
+    NoteCategory(
       id: 1,
       name: 'Работа',
       icon: Icons.work,
       color: Color(0xFF34C759),
     ),
-    const NoteCategory(
+    NoteCategory(
       id: 2,
       name: 'Идеи',
       icon: Icons.lightbulb,
       color: Color(0xFFFF9500),
     ),
-    const NoteCategory(
+    NoteCategory(
       id: 3,
       name: 'Важное',
       icon: Icons.star,
@@ -63,16 +69,45 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     ),
   ];
 
-  late final TextEditingController _titleController;
-  late final TextEditingController _contentController;
-  final _categoryNameController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.category;
     _titleController = TextEditingController(text: widget.title);
     _contentController = TextEditingController(text: widget.content);
+    _loadCategories();
+  }
+
+  void _loadCategories() {
+    final savedCategories = CardManager().getAllCategories();
+    final defaults = Map.fromEntries(
+      _defaultCategories.map((c) => MapEntry(c.name, c)),
+    );
+
+    final List<NoteCategory> result = [];
+    int nextId = _defaultCategories.length;
+
+    for (final cat in savedCategories) {
+      if (defaults.containsKey(cat.name)) {
+        result.add(defaults[cat.name]!);
+        defaults.remove(cat.name);
+      } else {
+        result.add(
+          NoteCategory(
+            id: nextId++,
+            name: cat.name,
+            icon: Icons.folder,
+            color: const Color(0xFFAF52DE),
+          ),
+        );
+      }
+    }
+
+    for (final cat in defaults.values) {
+      result.add(cat);
+    }
+
+    setState(() => _allCategories = result);
   }
 
   @override
@@ -90,10 +125,15 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     setState(() => _selectedCategory = newCategory);
   }
 
-  void _onCategoryAdded(NoteCategory newCategory) {
+  void _onCategoryAdded(NoteCategory newCategory) async {
+    await CardManager().createCategory(newCategory.name);
+    _loadCategories();
+    final match = _allCategories.firstWhere(
+      (c) => c.name == newCategory.name,
+      orElse: () => _allCategories.last,
+    );
     setState(() {
-      _allCategories.add(newCategory);
-      _selectedCategory = newCategory.name;
+      _selectedCategory = match.name;
     });
   }
 

@@ -16,6 +16,7 @@ class CategorySheetContent extends StatefulWidget {
     required this.categoryNameController,
     required this.onCategorySelected,
     required this.onCategoryAdded,
+    required List<NoteCategory> loadCategories,
   });
 
   @override
@@ -25,29 +26,11 @@ class CategorySheetContent extends StatefulWidget {
 class _CategorySheetContentState extends State<CategorySheetContent> {
   bool _isAddingCategory = false;
   late int _localSelectedId;
-  late List<NoteCategory> _allCategories;
+
   @override
   void initState() {
     super.initState();
     _localSelectedId = widget.selectedCategoryId; // 👈 Начальное значение
-  }
-
-  void _addCategory(String name) {
-    final newId = _allCategories.isEmpty
-        ? 0
-        : _allCategories.map((c) => c.id).reduce((a, b) => a > b ? a : b) + 1;
-
-    final newCategory = NoteCategory(
-      id: newId,
-      name: name,
-      icon: Icons.folder,
-      color: Colors.teal,
-    );
-
-    setState(() {
-      _allCategories.add(newCategory);
-      _localSelectedId = newId;
-    });
   }
 
   @override
@@ -123,7 +106,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
         setState(() {
           _isAddingCategory = !_isAddingCategory;
           if (!_isAddingCategory) {
-            widget.categoryNameController.clear();
+            // widget.categoryNameController.clear();
           }
         });
       },
@@ -200,37 +183,70 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
       );
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: widget.categories.map((category) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: widget.categories.length,
+      itemBuilder: (context, index) {
+        final category = widget.categories[index];
         final isSelected = _localSelectedId == category.id;
-        return ChoiceChip(
-          label: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                category.icon,
-                size: 16,
-                color: isSelected ? Colors.white : category.color,
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _localSelectedId = category.id;
+              });
+              widget.onCategorySelected(category.id);
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? category.color
+                    : category.color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 2),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              Text(category.name),
-            ],
-          ),
-          selected: isSelected,
-          selectedColor: category.color,
-          onSelected: (_) {
-            setState(() {
-              _localSelectedId = category.id; // 👈 Меняем локально сразу
-            });
-            widget.onCategorySelected(category.id);
-          },
-          labelStyle: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+              child: Row(
+                children: [
+                  Icon(
+                    category.icon,
+                    size: 18,
+                    color: isSelected ? Colors.white : category.color,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    category.name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isSelected ? Colors.white : category.color,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (isSelected)
+                    const Icon(Icons.check, size: 18, color: Colors.white),
+                ],
+              ),
+            ),
           ),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -245,12 +261,13 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
               id: widget.categories.length,
               name: widget.categoryNameController.text,
               icon: Icons.folder,
-              color: Colors.teal,
+              color: const Color.fromARGB(255, 116, 85, 202),
             );
-            widget.onCategoryAdded(newCategory);
-            widget.categoryNameController.clear();
+
             setState(() {
               _isAddingCategory = false;
+              widget.onCategoryAdded(newCategory);
+              widget.categoryNameController.clear();
             });
           }
           Navigator.pop(context);

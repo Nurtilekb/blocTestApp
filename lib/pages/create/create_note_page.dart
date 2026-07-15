@@ -1,5 +1,6 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/note.dart';
+import 'package:bloctestapp/services/card_manager.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/category_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,8 +35,9 @@ class _CreateNotePageState extends State<CreateNotePage> {
   final DateTime _selectedDate = DateTime.now();
 
   int _selectedCategoryId = 0;
+  List<NoteCategory> _categories = [];
 
-  final List<NoteCategory> _categories = [
+  static const _defaultCategories = [
     NoteCategory(
       id: 0,
       name: 'Личное',
@@ -66,6 +68,44 @@ class _CreateNotePageState extends State<CreateNotePage> {
     (c) => c.id == _selectedCategoryId,
     orElse: () => _categories.first,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  void _loadCategories() {
+    final savedCategories = CardManager().getAllCategories();
+    final defaults = Map.fromEntries(
+      _defaultCategories.map((c) => MapEntry(c.name, c)),
+    );
+
+    final List<NoteCategory> result = [];
+    int nextId = _defaultCategories.length;
+
+    for (final cat in savedCategories) {
+      if (defaults.containsKey(cat.name)) {
+        result.add(defaults[cat.name]!);
+        defaults.remove(cat.name);
+      } else {
+        result.add(
+          NoteCategory(
+            id: nextId++,
+            name: cat.name,
+            icon: Icons.folder,
+            color: const Color(0xFFAF52DE),
+          ),
+        );
+      }
+    }
+
+    for (final cat in defaults.values) {
+      result.add(cat);
+    }
+
+    setState(() => _categories = result);
+  }
 
   @override
   void dispose() {
@@ -101,11 +141,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
   }
 
-  void _saveCard() {
+  void _saveCard() async {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
 
-    // Нельзя сохранить полностью пустую заметку
     if (title.isEmpty && content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -116,40 +155,28 @@ class _CreateNotePageState extends State<CreateNotePage> {
       return;
     }
 
-    String categoryName;
-
     if (_categoryNameController.text.isNotEmpty) {
-      categoryName = _categoryNameController.text;
-
-      final newCategory = NoteCategory(
-        id: _categories.length,
-        name: _categoryNameController.text,
-        icon: Icons.folder,
-        color: Colors.teal,
-      );
-
-      setState(() {
-        _categories.add(newCategory);
-        _selectedCategoryId = newCategory.id;
-      });
-
+      // 👇 СОХРАНЯЕМ НОВУЮ КАТЕГОРИЮ В HIVE
+      final categoryName = _categoryNameController.text.trim();
+      await CardManager().createCategory(categoryName);
       _categoryNameController.clear();
     } else {
-      categoryName = _currentCategory.name;
+      // 👇 ИСПОЛЬЗУЕМ ВЫБРАННУЮ
     }
 
-    context.read<NotesBloc>().add(
-      AddNote(
-        Notes(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: title,
-          description: content,
-          category: categoryName,
-          date: _selectedDate,
-        ),
-      ),
+    final note = Notes(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      description: content,
+
+      date: _selectedDate,
+      category: _currentCategory.name,
     );
 
+    // ignore: use_build_context_synchronously
+    context.read<NotesBloc>().add(AddNote(note));
+
+    // ignore: use_build_context_synchronously
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('✅ Карточка создана!'),
@@ -157,6 +184,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
       ),
     );
 
+    // ignore: use_build_context_synchronously
     Navigator.pop(context, true);
   }
 
@@ -254,12 +282,18 @@ class _CreateNotePageState extends State<CreateNotePage> {
                     onCategorySelected: (id) {
                       setState(() => _selectedCategoryId = id);
                     },
-                    onCategoryAdded: (newCategory) {
+                    onCategoryAdded: (newCategory) async {
+                      await CardManager().createCategory(newCategory.name);
+                      _loadCategories();
+                      final match = _categories.firstWhere(
+                        (c) => c.name == newCategory.name,
+                        orElse: () => _categories.last,
+                      );
                       setState(() {
-                        _categories.add(newCategory);
-                        _selectedCategoryId = newCategory.id;
+                        _selectedCategoryId = match.id;
                       });
                     },
+                    loadCategories: _categories,
                   );
                 },
               );
