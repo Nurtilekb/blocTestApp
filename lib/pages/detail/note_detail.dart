@@ -130,10 +130,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   void _onCategoryDeleted(int id) async {
     await CardManager().deleteCategory(id);
     _loadCategories();
-    if (_allCategories.isEmpty) return;
-    final deletedName = _selectedCategory;
-    final stillExists = _allCategories.any((c) => c.name == deletedName);
-    if (!stillExists) {
+    if (_allCategories.isEmpty) {
+      setState(() {
+        _selectedCategory = '';
+      });
+      return;
+    }
+    final deletedCategory = CardManager().getCategoryById(id);
+    if (deletedCategory != null && _selectedCategory == deletedCategory.name) {
       setState(() {
         _selectedCategory = _allCategories.first.name;
       });
@@ -143,10 +147,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   void _onCategoryUpdated(NoteCategory updated) async {
     await CardManager().updateCategory(updated.id, updated.name);
     _loadCategories();
-    if (_selectedCategory == updated.name) return;
-    setState(() {
-      _selectedCategory = updated.name;
-    });
+    if (_selectedCategory != updated.name) {
+      final exists = _allCategories.any((c) => c.name == updated.name);
+      if (exists) {
+        setState(() {
+          _selectedCategory = updated.name;
+        });
+      }
+    }
   }
 
   void _saveChanges() {
@@ -222,6 +230,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                     categoryNameController: _categoryNameController,
                     onCategoryChanged: _onCategoryChanged,
                     onCategoryAdded: _onCategoryAdded,
+                    onCategoryUpdated: _onCategoryUpdated,
+                    onCategoryDeleted: _onCategoryDeleted,
                   ),
                   const Spacer(),
                 ],

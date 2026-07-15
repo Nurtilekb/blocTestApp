@@ -275,7 +275,26 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       setState(() {
                         _selectedCategoryId = match.id;
                       });
-                      // Закрываем шторку после добавления (опционально)
+                      Navigator.pop(sheetContext);
+                    },
+                    onCategoryUpdated: (updatedCategory) async {
+                      await CardManager().updateCategory(updatedCategory.id, updatedCategory.name);
+                      _loadCategories();
+                      if (_selectedCategoryId == updatedCategory.id) {
+                        setState(() {
+                          _selectedCategoryId = updatedCategory.id;
+                        });
+                      }
+                      Navigator.pop(sheetContext);
+                    },
+                    onCategoryDeleted: (categoryId) async {
+                      await CardManager().deleteCategory(categoryId);
+                      _loadCategories();
+                      if (_selectedCategoryId == categoryId) {
+                        setState(() {
+                          _selectedCategoryId = -1;
+                        });
+                      }
                       Navigator.pop(sheetContext);
                     },
                   );
