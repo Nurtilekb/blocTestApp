@@ -19,52 +19,38 @@ class MyHomePage extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              Text(
+              const Text(
                 'Заметки',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
               ),
               const Spacer(),
-
               IconButton.filled(
                 iconSize: 32,
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: Colors.black12),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SearchPage()),
-                  );
-                },
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SearchPage()),
+                ),
                 icon: const Icon(Icons.search),
               ),
             ],
           ),
         ),
       ),
-
       body: BlocBuilder<NotesBloc, NotesState>(
         builder: (context, state) {
           if (state is NotesLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (state is NotesLoaded) {
-            if (state.notes.isEmpty) {
-              return WithOutNotes();
-            }
-
-            return WithNotes();
+            return state.notes.isEmpty ? const WithoutNotes() : const WithNotes();
           }
-
           if (state is NotesError) {
             return Center(child: Text(state.message));
           }
-
           return const SizedBox();
         },
       ),
