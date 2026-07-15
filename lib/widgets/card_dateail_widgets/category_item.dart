@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
-
-// 👇 Импортируем дефолтные категории
-const List<Map<String, dynamic>> defaultCategories = [
-  {'name': 'Личное', 'color': Color(0xFF007AFF), 'icon': Icons.person},
-  {'name': 'Работа', 'color': Color(0xFF34C759), 'icon': Icons.work},
-  {'name': 'Идеи', 'color': Color(0xFFFF9500), 'icon': Icons.lightbulb},
-  {'name': 'Важное', 'color': Color(0xFFFF3B30), 'icon': Icons.star},
-];
+import 'package:bloctestapp/constants/app_constants.dart';
 
 class CategoryItem extends StatelessWidget {
   final String categName;

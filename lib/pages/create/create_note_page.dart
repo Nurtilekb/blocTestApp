@@ -4,6 +4,7 @@ import 'package:bloctestapp/services/card_manager.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/category_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloctestapp/constants/app_constants.dart';
 
 //  Модель категории
 class NoteCategory {
@@ -37,32 +38,14 @@ class _CreateNotePageState extends State<CreateNotePage> {
   int _selectedCategoryId = 0;
   List<NoteCategory> _categories = [];
 
-  static const _defaultCategories = [
-    NoteCategory(
-      id: 0,
-      name: 'Личное',
-      icon: Icons.person,
-      color: Color(0xFF007AFF),
-    ),
-    NoteCategory(
-      id: 1,
-      name: 'Работа',
-      icon: Icons.work,
-      color: Color(0xFF34C759),
-    ),
-    NoteCategory(
-      id: 2,
-      name: 'Идеи',
-      icon: Icons.lightbulb,
-      color: Color(0xFFFF9500),
-    ),
-    NoteCategory(
-      id: 3,
-      name: 'Важное',
-      icon: Icons.star,
-      color: Color(0xFFFF3B30),
-    ),
-  ];
+  List<NoteCategory> get _defaultCategories => defaultCategories
+      .map((c) => NoteCategory(
+            id: c.index,
+            name: c['name'] as String,
+            icon: c['icon'] as IconData,
+            color: c['color'] as Color,
+          ))
+      .toList();
 
   NoteCategory get _currentCategory => _categories.firstWhere(
     (c) => c.id == _selectedCategoryId,
