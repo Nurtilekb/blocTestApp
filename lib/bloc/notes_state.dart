@@ -14,8 +14,7 @@ final class NotesLoading extends NotesState {
 class NotesLoaded extends NotesState {
   final List<Notes> notes;
   final String searchQuery;
-  final List<String>
-  allCategories; // 👈 ВСЕ категории (дефолтные + использованные)
+  final List<String> allCategories;
 
   const NotesLoaded({
     required this.notes,
@@ -25,11 +24,20 @@ class NotesLoaded extends NotesState {
       'Работа',
       'Идеи',
       'Важное',
-    ], // 👈 дефолтные
+    ],
   });
 
   @override
   List<Object> get props => [notes, searchQuery, allCategories];
+}
+
+class CategoriesLoaded extends NotesState {
+  final List<CategoryModel> categories;
+
+  const CategoriesLoaded({required this.categories});
+
+  @override
+  List<Object> get props => [categories];
 }
 
 final class NotesError extends NotesState {

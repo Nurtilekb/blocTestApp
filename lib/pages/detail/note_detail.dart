@@ -1,6 +1,6 @@
 import 'package:bloctestapp/pages/create/create_note_page.dart'
     show NoteCategory;
-import 'package:bloctestapp/services/card_manager.dart';
+import 'package:bloctestapp/models/category_model.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/detail_tittle_field.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/tab_bar_view.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +69,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _loadCategories() {
-    final savedCategories = CardManager().getAllCategories();
+    context.read<NotesBloc>().add(LoadCategories());
+  }
+
+  void _processCategories(List<CategoryModel> savedCategories) {
     final defaults = Map.fromEntries(
       _defaultCategories.map((c) => MapEntry(c.name, c)),
     );
@@ -121,8 +124,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryAdded(NoteCategory newCategory) {
-    CardManager().createCategory(newCategory.name);
-    _loadCategories();
+    context.read<NotesBloc>().add(CreateCategory(newCategory.name));
     final match = _allCategories.firstWhere(
       (c) => c.name == newCategory.name,
       orElse: () => _allCategories.last,
@@ -138,8 +140,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       orElse: () => _allCategories.first,
     );
     final deletedName = deletedCategory.name;
-    CardManager().deleteCategory(id);
-    _loadCategories();
+    context.read<NotesBloc>().add(DeleteCategory(id));
     if (_allCategories.isEmpty) {
       setState(() {
         _selectedCategory = '';
@@ -157,8 +158,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     final oldName = _allCategories
         .firstWhere((c) => c.id == updated.id, orElse: () => updated)
         .name;
-    CardManager().updateCategory(updated.id, updated.name);
-    _loadCategories();
+    context.read<NotesBloc>().add(UpdateCategory(id: updated.id, newName: updated.name));
     if (_selectedCategory == oldName) {
       setState(() {
         _selectedCategory = updated.name;
@@ -167,26 +167,37 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _saveChanges() {
-    final updatedNote = Notes(
-      id: widget.idGeter,
-      title: _titleController.text,
-      description: _contentController.text,
-      category: _selectedCategory,
-      date: DateTime.now(),
-    );
+    if (_titleController.text.trim().isEmpty &&
+        _contentController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Поля не могут быть пусты !'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 1),
+        ),
+      );
+    } else {
+      final updatedNote = Notes(
+        id: widget.idGeter,
+        title: _titleController.text,
+        description: _contentController.text,
+        category: _selectedCategory,
+        date: DateTime.now(),
+      );
 
-    context.read<NotesBloc>().add(UpdateNote(updatedNote));
+      context.read<NotesBloc>().add(UpdateNote(updatedNote));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✅ Заметка обновлена'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 1),
-      ),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Заметка обновлена'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 1),
+        ),
+      );
 
-    setState(() => isEditing = false);
-    Navigator.pop(context);
+      setState(() => isEditing = false);
+      Navigator.pop(context);
+    }
   }
 
   void _cancelEditing() {
@@ -200,7 +211,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<NotesBloc, NotesState>(
+      listener: (context, state) {
+        if (state is CategoriesLoaded) {
+          _processCategories(state.categories);
+        }
+      },
+      child: Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
@@ -263,6 +280,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       floatingActionButton: isEditing
           ? DetailEditButtons(onSave: _saveChanges, onCancel: _cancelEditing)
           : const SizedBox(),
+    ),
     );
   }
 }

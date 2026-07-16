@@ -3,7 +3,7 @@ import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
 import 'package:bloctestapp/models/category_model.dart';
 import 'package:bloctestapp/models/note.dart';
 import 'package:bloctestapp/pages/hompage/home_page.dart';
-import 'package:bloctestapp/services/card_manager.dart';
+import 'package:bloctestapp/services/card_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';

@@ -1,6 +1,6 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/note.dart';
-import 'package:bloctestapp/services/card_manager.dart';
+import 'package:bloctestapp/models/category_model.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/category_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,7 +66,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
   }
 
   void _loadCategories() {
-    final savedCategories = CardManager().getAllCategories();
+    context.read<NotesBloc>().add(LoadCategories());
+  }
+
+  void _processCategories(List<CategoryModel> savedCategories) {
     final defaults = Map.fromEntries(
       _defaultCategories.map((c) => MapEntry(c.name, c)),
     );
@@ -112,7 +115,13 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<NotesBloc, NotesState>(
+      listener: (context, state) {
+        if (state is CategoriesLoaded) {
+          _processCategories(state.categories);
+        }
+      },
+      child: Scaffold(
       body: Form(
         key: _formKey,
         child: SafeArea(
@@ -133,6 +142,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -152,9 +162,8 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
     if (_categoryNameController.text.isNotEmpty) {
       final categoryName = _categoryNameController.text.trim();
-      CardManager().createCategory(categoryName);
+      context.read<NotesBloc>().add(CreateCategory(categoryName));
       _categoryNameController.clear();
-      _loadCategories();
     }
 
     final note = Notes(
@@ -268,8 +277,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       setState(() => _selectedCategoryId = id);
                     },
                     onCategoryAdded: (newCategory) {
-                      CardManager().createCategory(newCategory.name);
-                      _loadCategories();
+                      context.read<NotesBloc>().add(CreateCategory(newCategory.name));
                       final match = _categories.firstWhere(
                         (c) => c.name == newCategory.name,
                         orElse: () => _categories.last,
@@ -279,11 +287,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       });
                     },
                     onCategoryUpdated: (updatedCategory) {
-                      CardManager().updateCategory(
-                        updatedCategory.id,
-                        updatedCategory.name,
-                      );
-                      _loadCategories();
+                      context.read<NotesBloc>().add(UpdateCategory(
+                        id: updatedCategory.id,
+                        newName: updatedCategory.name,
+                      ));
                       if (_selectedCategoryId == updatedCategory.id) {
                         setState(() {
                           _selectedCategoryId = updatedCategory.id;
@@ -291,8 +298,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       }
                     },
                     onCategoryDeleted: (categoryId) {
-                      CardManager().deleteCategory(categoryId);
-                      _loadCategories();
+                      context.read<NotesBloc>().add(DeleteCategory(categoryId));
                       if (_selectedCategoryId == categoryId) {
                         setState(() {
                           _selectedCategoryId = _categories.isNotEmpty

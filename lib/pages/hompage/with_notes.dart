@@ -131,14 +131,12 @@ class _WithNotesState extends State<WithNotes> {
           if (state is NotesLoaded) {
             var notes = state.notes;
 
-            // Фильтрация: если выбрано не "Все", фильтруем по категории
             if (_selectedCategory != 'Все') {
               notes = notes
                   .where((note) => note.category == _selectedCategory)
                   .toList();
             }
 
-            // Сортировка по дате
             notes.sort((a, b) => b.date.compareTo(a.date));
 
             if (notes.isEmpty) {

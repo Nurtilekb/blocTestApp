@@ -40,17 +40,38 @@ class MyHomePage extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocBuilder<NotesBloc, NotesState>(
+      body: BlocConsumer<NotesBloc, NotesState>(
+        listener: (context, state) {
+          if (state is CategoriesLoaded) {
+            context.read<NotesBloc>().add(LoadNotes());
+          }
+        },
+        listenWhen: (context, state) {
+          if (state is CategoriesLoaded) return true;
+          return false;
+        },
+        buildWhen: (context, state) {
+          if (state is NotesLoading ||
+              state is NotesLoaded ||
+              state is NotesError) {
+            return true;
+          }
+          return false;
+        },
         builder: (context, state) {
           if (state is NotesLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state is NotesLoaded) {
-            return state.notes.isEmpty ? const WithoutNotes() : const WithNotes();
-          }
           if (state is NotesError) {
             return Center(child: Text(state.message));
           }
+
+          if (state is NotesLoaded) {
+            return state.notes.isEmpty
+                ? const WithoutNotes()
+                : const WithNotes();
+          }
+
           return const SizedBox();
         },
       ),

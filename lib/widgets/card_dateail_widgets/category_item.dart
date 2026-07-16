@@ -13,7 +13,7 @@ class CategoryItem extends StatelessWidget {
     required this.onTap,
   });
 
-  // 👇 Получаем цвет категории
+  //  Получаем цвет категории
   Color _getCategoryColor() {
     final found = defaultCategories.firstWhere(
       (cat) => cat['name'] == categName,
@@ -25,7 +25,7 @@ class CategoryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _getCategoryColor();
-    
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -34,7 +34,7 @@ class CategoryItem extends StatelessWidget {
         padding: const EdgeInsets.all(5),
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15), // 👈 цвет зависит от категории
+          color: color.withValues(alpha: 0.15), //   цвет зависит от категории
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -54,7 +54,7 @@ class CategoryItem extends StatelessWidget {
             categName,
             style: TextStyle(
               fontSize: 14,
-              color: color, // 👈 цвет текста как у категории
+              color: color,
               fontWeight: FontWeight.w500,
             ),
           ),
