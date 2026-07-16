@@ -73,7 +73,6 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
 
     final List<NoteCategory> result = [];
-    int nextId = _defaultCategories.length;
 
     for (final cat in savedCategories) {
       if (defaults.containsKey(cat.name)) {
@@ -82,7 +81,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
       } else {
         result.add(
           NoteCategory(
-            id: nextId++,
+            id: cat.id,
             name: cat.name,
             icon: Icons.folder,
             color: const Color(0xFFAF52DE),
@@ -275,27 +274,27 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       setState(() {
                         _selectedCategoryId = match.id;
                       });
-                      Navigator.pop(sheetContext);
                     },
                     onCategoryUpdated: (updatedCategory) async {
-                      await CardManager().updateCategory(updatedCategory.id, updatedCategory.name);
+                      await CardManager()
+                          .updateCategory(updatedCategory.id, updatedCategory.name);
                       _loadCategories();
                       if (_selectedCategoryId == updatedCategory.id) {
                         setState(() {
                           _selectedCategoryId = updatedCategory.id;
                         });
                       }
-                      Navigator.pop(sheetContext);
                     },
                     onCategoryDeleted: (categoryId) async {
                       await CardManager().deleteCategory(categoryId);
                       _loadCategories();
                       if (_selectedCategoryId == categoryId) {
                         setState(() {
-                          _selectedCategoryId = -1;
+                          _selectedCategoryId = _categories.isNotEmpty
+                              ? _categories.first.id
+                              : -1;
                         });
                       }
-                      Navigator.pop(sheetContext);
                     },
                   );
                 },

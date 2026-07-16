@@ -75,7 +75,6 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     );
 
     final List<NoteCategory> result = [];
-    int nextId = _defaultCategories.length;
 
     for (final cat in savedCategories) {
       if (defaults.containsKey(cat.name)) {
@@ -84,7 +83,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       } else {
         result.add(
           NoteCategory(
-            id: nextId++,
+            id: cat.id,
             name: cat.name,
             icon: Icons.folder,
             color: const Color(0xFFAF52DE),
@@ -128,6 +127,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryDeleted(int id) async {
+    final deletedCategory = _allCategories.firstWhere(
+      (c) => c.id == id,
+      orElse: () => _allCategories.first,
+    );
+    final deletedName = deletedCategory.name;
     await CardManager().deleteCategory(id);
     _loadCategories();
     if (_allCategories.isEmpty) {
@@ -136,8 +140,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       });
       return;
     }
-    final deletedCategory = CardManager().getCategoryById(id);
-    if (deletedCategory != null && _selectedCategory == deletedCategory.name) {
+    if (_selectedCategory == deletedName) {
       setState(() {
         _selectedCategory = _allCategories.first.name;
       });
@@ -145,15 +148,18 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryUpdated(NoteCategory updated) async {
+    final oldName = _allCategories
+        .firstWhere(
+          (c) => c.id == updated.id,
+          orElse: () => updated,
+        )
+        .name;
     await CardManager().updateCategory(updated.id, updated.name);
     _loadCategories();
-    if (_selectedCategory != updated.name) {
-      final exists = _allCategories.any((c) => c.name == updated.name);
-      if (exists) {
-        setState(() {
-          _selectedCategory = updated.name;
-        });
-      }
+    if (_selectedCategory == oldName) {
+      setState(() {
+        _selectedCategory = updated.name;
+      });
     }
   }
 

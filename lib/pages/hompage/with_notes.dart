@@ -236,6 +236,7 @@ class _WithNotesState extends State<WithNotes> {
   }
 
   // Вспомогательный метод для формата "5 июня"
+  // ignore: unused_element
   String _getFormattedDateOnly(DateTime date) {
     const monthNames = [
       'января',

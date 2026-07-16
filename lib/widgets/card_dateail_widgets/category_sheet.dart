@@ -206,6 +206,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                 }
 
                 Navigator.pop(ctx);
+                Navigator.pop(context);
               }
             },
             child: const Text('Сохранить'),
@@ -232,18 +233,12 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              if (_localSelectedId == category.id) {
-                setState(() {
-                  _localSelectedId = -1;
-                });
-                widget.onCategorySelected(-1);
-              }
-
               if (widget.onCategoryDeleted != null) {
                 widget.onCategoryDeleted!(category.id);
               }
 
               Navigator.pop(ctx);
+              Navigator.pop(context);
             },
             child: const Text('Удалить', style: TextStyle(color: Colors.white)),
           ),
