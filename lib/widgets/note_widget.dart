@@ -15,7 +15,7 @@ class NoteCardWidget extends StatefulWidget {
   });
   final String mainText;
   final String descripText;
-  final String dateTime;
+  final DateTime dateTime;
   final String categoryText;
   final String detterId;
   @override
@@ -100,7 +100,8 @@ class _CardsInPageState extends State<NoteCardWidget> {
               Row(
                 children: [
                   Text(
-                    widget.dateTime,
+                    _formatDate(widget.dateTime),
+
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight(600),
@@ -146,5 +147,25 @@ class _CardsInPageState extends State<NoteCardWidget> {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    const monthNames = [
+      'января',
+      'февраля',
+      'марта',
+      'апреля',
+      'мая',
+      'июня',
+      'июля',
+      'августа',
+      'сентября',
+      'октября',
+      'ноября',
+      'декабря',
+    ];
+
+    // Всегда возвращаем формат "5 июня"
+    return '${date.day} ${monthNames[date.month - 1]}';
   }
 }
