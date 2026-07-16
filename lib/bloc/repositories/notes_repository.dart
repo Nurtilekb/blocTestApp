@@ -35,7 +35,7 @@ class NotesRepository {
     return manager.getAllCategories();
   }
 
-  Future<CategoryModel> createCategory(String name) {
+  Future<CategoryModel> createCategory(String name) async {
     return manager.createCategory(name);
   }
 

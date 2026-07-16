@@ -47,28 +47,29 @@ class CardManager {
 
   CategoryModel? getCategoryById(int id) => _categoriesBox.get(id);
 
-  Future<CategoryModel> createCategory(String name) async {
+  CategoryModel createCategory(String name) {
+    const defaultMaxId = 3;
     final nextId = _categoriesBox.isEmpty
-        ? 4
-        : _categoriesBox.values
-                  .map((c) => c.id)
-                  .reduce((a, b) => a > b ? a : b) +
-              1;
+        ? defaultMaxId + 1
+        : [
+            _categoriesBox.values.map((c) => c.id).reduce((a, b) => a > b ? a : b),
+            defaultMaxId,
+          ].reduce((a, b) => a > b ? a : b) + 1;
 
     final category = CategoryModel(id: nextId, name: name);
-    await _categoriesBox.put(category.id, category);
+    _categoriesBox.put(category.id, category);
     return category;
   }
 
-  Future<void> deleteCategory(int id) async {
-    await _categoriesBox.delete(id);
+  void deleteCategory(int id) {
+    _categoriesBox.delete(id);
   }
 
-  Future<void> updateCategory(int id, String newName) async {
+  void updateCategory(int id, String newName) {
     final category = _categoriesBox.get(id);
     if (category != null) {
       final updated = CategoryModel(id: category.id, name: newName);
-      await _categoriesBox.put(id, updated);
+      _categoriesBox.put(id, updated);
     }
   }
 }

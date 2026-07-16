@@ -73,10 +73,13 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
 
     final List<NoteCategory> result = [];
+    final usedIds = <int>{};
 
     for (final cat in savedCategories) {
       if (defaults.containsKey(cat.name)) {
-        result.add(defaults[cat.name]!);
+        final noteCat = defaults[cat.name]!;
+        result.add(noteCat);
+        usedIds.add(noteCat.id);
         defaults.remove(cat.name);
       } else {
         result.add(
@@ -87,11 +90,14 @@ class _CreateNotePageState extends State<CreateNotePage> {
             color: const Color(0xFFAF52DE),
           ),
         );
+        usedIds.add(cat.id);
       }
     }
 
     for (final cat in defaults.values) {
-      result.add(cat);
+      if (!usedIds.contains(cat.id)) {
+        result.add(cat);
+      }
     }
 
     setState(() => _categories = result);
@@ -148,7 +154,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
     // Если в поле ввода есть текст, значит пользователь хочет создать новую категорию
     if (_categoryNameController.text.isNotEmpty) {
       final categoryName = _categoryNameController.text.trim();
-      await CardManager().createCategory(categoryName);
+      CardManager().createCategory(categoryName);
       _categoryNameController.clear();
       // Перезагружаем категории, чтобы получить новый ID и обновить список
       _loadCategories();
@@ -264,8 +270,8 @@ class _CreateNotePageState extends State<CreateNotePage> {
                     onCategorySelected: (id) {
                       setState(() => _selectedCategoryId = id);
                     },
-                    onCategoryAdded: (newCategory) async {
-                      await CardManager().createCategory(newCategory.name);
+                    onCategoryAdded: (newCategory) {
+                      CardManager().createCategory(newCategory.name);
                       _loadCategories();
                       final match = _categories.firstWhere(
                         (c) => c.name == newCategory.name,
@@ -275,8 +281,8 @@ class _CreateNotePageState extends State<CreateNotePage> {
                         _selectedCategoryId = match.id;
                       });
                     },
-                    onCategoryUpdated: (updatedCategory) async {
-                      await CardManager()
+                    onCategoryUpdated: (updatedCategory) {
+                      CardManager()
                           .updateCategory(updatedCategory.id, updatedCategory.name);
                       _loadCategories();
                       if (_selectedCategoryId == updatedCategory.id) {
@@ -285,8 +291,8 @@ class _CreateNotePageState extends State<CreateNotePage> {
                         });
                       }
                     },
-                    onCategoryDeleted: (categoryId) async {
-                      await CardManager().deleteCategory(categoryId);
+                    onCategoryDeleted: (categoryId) {
+                      CardManager().deleteCategory(categoryId);
                       _loadCategories();
                       if (_selectedCategoryId == categoryId) {
                         setState(() {

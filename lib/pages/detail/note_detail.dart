@@ -75,10 +75,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     );
 
     final List<NoteCategory> result = [];
+    final usedIds = <int>{};
 
     for (final cat in savedCategories) {
       if (defaults.containsKey(cat.name)) {
-        result.add(defaults[cat.name]!);
+        final noteCat = defaults[cat.name]!;
+        result.add(noteCat);
+        usedIds.add(noteCat.id);
         defaults.remove(cat.name);
       } else {
         result.add(
@@ -89,11 +92,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             color: const Color(0xFFAF52DE),
           ),
         );
+        usedIds.add(cat.id);
       }
     }
 
     for (final cat in defaults.values) {
-      result.add(cat);
+      if (!usedIds.contains(cat.id)) {
+        result.add(cat);
+      }
     }
 
     setState(() => _allCategories = result);
