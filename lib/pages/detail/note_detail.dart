@@ -18,7 +18,7 @@ class NoteDetailPage extends StatefulWidget {
   final String category;
   final Color categoryColor;
   final String idGeter;
-  final String dateTime;
+  final DateTime dateTime;
 
   const NoteDetailPage({
     super.key,
@@ -114,8 +114,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     setState(() => _selectedCategory = newCategory);
   }
 
-  void _onCategoryAdded(NoteCategory newCategory) async {
-    await CardManager().createCategory(newCategory.name);
+  void _onCategoryAdded(NoteCategory newCategory) {
+    CardManager().createCategory(newCategory.name);
     _loadCategories();
     final match = _allCategories.firstWhere(
       (c) => c.name == newCategory.name,
@@ -126,13 +126,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     });
   }
 
-  void _onCategoryDeleted(int id) async {
+  void _onCategoryDeleted(int id) {
     final deletedCategory = _allCategories.firstWhere(
       (c) => c.id == id,
       orElse: () => _allCategories.first,
     );
     final deletedName = deletedCategory.name;
-    await CardManager().deleteCategory(id);
+    CardManager().deleteCategory(id);
     _loadCategories();
     if (_allCategories.isEmpty) {
       setState(() {
@@ -147,14 +147,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     }
   }
 
-  void _onCategoryUpdated(NoteCategory updated) async {
+  void _onCategoryUpdated(NoteCategory updated) {
     final oldName = _allCategories
-        .firstWhere(
-          (c) => c.id == updated.id,
-          orElse: () => updated,
-        )
+        .firstWhere((c) => c.id == updated.id, orElse: () => updated)
         .name;
-    await CardManager().updateCategory(updated.id, updated.name);
+    CardManager().updateCategory(updated.id, updated.name);
     _loadCategories();
     if (_selectedCategory == oldName) {
       setState(() {

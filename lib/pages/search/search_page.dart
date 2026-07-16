@@ -106,10 +106,8 @@ class _SearchPageState extends State<SearchPage> {
                           return NoteCardWidget(
                             mainText: note.title,
                             descripText: note.description,
-                            dateTime:
-                                "${note.date.day.toString().padLeft(2, '0')}."
-                                "${note.date.month.toString().padLeft(2, '0')}."
-                                "${note.date.year}",
+                            dateTime: note.date,
+
                             categoryText: note.category,
                             detterId: note.id,
                           );

@@ -172,7 +172,7 @@ class _WithNotesState extends State<WithNotes> {
                 return NoteCardWidget(
                   mainText: note.title,
                   descripText: note.description,
-                  dateTime: _formatDate(note.date),
+                  dateTime: note.date,
                   categoryText: note.category,
                   detterId: note.id,
                 );
@@ -235,8 +235,6 @@ class _WithNotesState extends State<WithNotes> {
     return '${date.day} ${monthNames[date.month - 1]}';
   }
 
-  // Вспомогательный метод для формата "5 июня"
-  // ignore: unused_element
   String _getFormattedDateOnly(DateTime date) {
     const monthNames = [
       'января',
