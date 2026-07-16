@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Дефолтные категории приложения
+/// Дефолтные категории
 const defaultCategories = [
   {'name': 'Личное', 'color': Color(0xFF007AFF), 'icon': Icons.person},
   {'name': 'Работа', 'color': Color(0xFF34C759), 'icon': Icons.work},
@@ -34,7 +34,7 @@ BoxDecoration cardDecoration = BoxDecoration(
 Color getCategoryColor(String name) {
   final found = defaultCategories.firstWhere(
     (cat) => cat['name'] == name,
-    orElse: () => {'color': const Color(0xFFAF52DE)},
+    orElse: () => {'color': const Color.fromARGB(255, 88, 55, 105)},
   );
   return found['color'] as Color;
 }

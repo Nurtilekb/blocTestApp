@@ -13,24 +13,21 @@ class NotesRepository {
   }
 
   void createNote(Notes note) {
-    manager.addNote(note); // 👈 Исправлено: передаём объект Notes
+    manager.addNote(note);
   }
 
   void deleteNote(String id) {
-    manager.deleteNote(id); // 👈 Исправлено: вызов метода
+    manager.deleteNote(id);
   }
 
   void updateNote(Notes note) {
-    manager.updateNote(note); // 👈 Исправлено: updateNote вместо updateCard
+    manager.updateNote(note);
   }
 
   List<Notes> searchNotes(String query) {
-    return manager.searchNotes(
-      query,
-    ); // 👈 Исправлено: searchNotes вместо searchCards
+    return manager.searchNotes(query);
   }
 
-  // 👇 ДОБАВИТЬ: работа с категориями
   List<CategoryModel> getCategories() {
     return manager.getAllCategories();
   }

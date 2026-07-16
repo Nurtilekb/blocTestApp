@@ -1,4 +1,4 @@
-import 'package:bloctestapp/constants/app_constants.dart'; // Убедитесь, что импорт есть
+import 'package:bloctestapp/constants/app_constants.dart';
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/pages/create/create_note_page.dart';
 import 'package:bloctestapp/widgets/note_widget.dart';
@@ -13,7 +13,6 @@ class WithNotes extends StatefulWidget {
 }
 
 class _WithNotesState extends State<WithNotes> {
-  // По умолчанию выбрано "Все"
   String _selectedCategory = 'Все';
 
   @override
@@ -46,25 +45,20 @@ class _WithNotesState extends State<WithNotes> {
           builder: (context, state) {
             if (state is! NotesLoaded) return const SizedBox();
 
-            // 1. Получаем уникальные категории пользователя
             final userCategories = state.notes
                 .map((note) => note.category)
                 .toSet();
 
-            // 2. Формируем итоговый список вручную, чтобы контролировать порядок
             final List<String> allCategories = [];
 
-            // Добавляем "Все" первым элементом
             allCategories.add('Все');
 
-            // Добавляем стандартные категории из констант (если их нет у пользователя, они всё равно будут в меню)
             for (var cat in defaultCategories) {
               if (!allCategories.contains(cat['name'])) {
                 allCategories.add(cat['name'] as String);
               }
             }
 
-            // Добавляем пользовательские категории, которых нет в стандарте
             for (var cat in userCategories) {
               if (!allCategories.contains(cat)) {
                 allCategories.add(cat);
@@ -197,6 +191,7 @@ class _WithNotesState extends State<WithNotes> {
             MaterialPageRoute(builder: (_) => const CreateNotePage()),
           );
           if (result == true && context.mounted) {
+            // ignore: use_build_context_synchronously
             context.read<NotesBloc>().add(LoadNotes());
           }
         },
@@ -213,53 +208,5 @@ class _WithNotesState extends State<WithNotes> {
         ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    const monthNames = [
-      'января',
-      'февраля',
-      'марта',
-      'апреля',
-      'мая',
-      'июня',
-      'июля',
-      'августа',
-      'сентября',
-      'октября',
-      'ноября',
-      'декабря',
-    ];
-
-    // Всегда возвращаем формат "5 июня"
-    return '${date.day} ${monthNames[date.month - 1]}';
-  }
-
-  String _getFormattedDateOnly(DateTime date) {
-    const monthNames = [
-      'января',
-      'февраля',
-      'марта',
-      'апреля',
-      'мая',
-      'июня',
-      'июля',
-      'августа',
-      'сентября',
-      'октября',
-      'ноября',
-      'декабря',
-    ];
-    return '${date.day} ${monthNames[date.month - 1]}';
-  }
-
-  // Вспомогательный метод для склонения дней (если оставили логику "назад")
-  String _getDayWord(int number) {
-    final n = number % 100;
-    if (n >= 11 && n <= 19) return 'дней';
-    final m = n % 10;
-    if (m == 1) return 'день';
-    if (m >= 2 && m <= 4) return 'дня';
-    return 'дней';
   }
 }

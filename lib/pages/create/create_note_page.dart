@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloctestapp/constants/app_constants.dart';
 
-// Модель категории (локальная для этого файла, если нет отдельного файла модели)
 class NoteCategory {
   final int id;
   final String name;
@@ -151,12 +150,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
       return;
     }
 
-    // Если в поле ввода есть текст, значит пользователь хочет создать новую категорию
     if (_categoryNameController.text.isNotEmpty) {
       final categoryName = _categoryNameController.text.trim();
       CardManager().createCategory(categoryName);
       _categoryNameController.clear();
-      // Перезагружаем категории, чтобы получить новый ID и обновить список
       _loadCategories();
     }
 
@@ -282,8 +279,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
                       });
                     },
                     onCategoryUpdated: (updatedCategory) {
-                      CardManager()
-                          .updateCategory(updatedCategory.id, updatedCategory.name);
+                      CardManager().updateCategory(
+                        updatedCategory.id,
+                        updatedCategory.name,
+                      );
                       _loadCategories();
                       if (_selectedCategoryId == updatedCategory.id) {
                         setState(() {
