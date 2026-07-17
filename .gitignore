@@ -1,29 +1,32 @@
 ```
+# Dart/Flutter build artifacts
+*.g.dart
+*.freezed.dart
+*.g.part
+*.freezed.part
+
 # Dependencies
 .pub/
 .dart_tool/
-
-# Build outputs
 build/
-*.apk
-*.aab
-*.app
 
 # Logs
 *.log
+**/logs
 
-# Environment
+# Environment variables
 .env
 .env.local
-*.env.*
+.env.*
+!.env.example
 
-# IDE
+# IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 ```
