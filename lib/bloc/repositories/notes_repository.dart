@@ -1,54 +1,50 @@
 import 'package:bloctestapp/models/category_model.dart';
+import 'package:bloctestapp/services/firestrore_service.dart';
 
-import '../../services/card_services.dart';
 import '../../models/note.dart';
 
 class NotesRepository {
-  final CardManager manager;
+  final FirestoreService manager;
 
   NotesRepository(this.manager);
 
-  List<Notes> getNotes() {
-    return manager.getAllNotes();
+  Future<List<Notes>> getNotes() async {
+    return await manager.getAllNotes();
   }
 
-  void createNote(Notes note) {
-    manager.addNote(note);
+  Future<void> createNote(Notes note) async {
+    await manager.addNote(note);
   }
 
-  void deleteNote(String id) {
-    manager.deleteNote(id);
+  Future<void> deleteNote(String id) async {
+    await manager.deleteNote(id);
   }
 
-  void updateNote(Notes note) {
-    manager.updateNote(note);
+  Future<void> updateNote(Notes note) async {
+    await manager.updateNote(note);
   }
 
-  List<Notes> searchNotes(String query) {
-    return manager.searchNotes(query);
-  }
-
-  List<CategoryModel> getCategories() {
-    return manager.getAllCategories();
+  Future<List<CategoryModel>> getCategories() async {
+    return await manager.getAllCategories();
   }
 
   Future<CategoryModel> createCategory(String name) async {
-    return manager.createCategory(name);
+    return await manager.createCategory(name);
   }
 
-  CategoryModel? getCategoryById(int id) {
-    return manager.getCategoryById(id);
+  Future<void> deleteCategory(int id) async {
+    await manager.deleteCategory(id);
   }
 
-  void updateNoteCategory(String noteId, int newCategoryId) {
-    manager.updateNoteCategory(noteId, newCategoryId);
+  Future<CategoryModel?> getCategoryById(int id) async {
+    return await manager.getCategoryById(id);
   }
 
-  void deleteCategory(int id) {
-    manager.deleteCategory(id);
+  Future<void> updateNoteCategory(String noteId, int newCategoryId) async {
+    await manager.updateNoteCategory(noteId, newCategoryId);
   }
 
-  void updateCategory(int id, String newName) {
-    manager.updateCategory(id, newName);
+  Future<List<Notes>> searchNotes(String query) async {
+    return await manager.searchNotes(query);
   }
 }
