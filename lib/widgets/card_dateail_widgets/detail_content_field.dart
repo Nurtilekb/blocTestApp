@@ -16,7 +16,6 @@ class DetailContentField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
         child: isEditing
             ? TextField(
                 cursorHeight: 20,

@@ -13,12 +13,10 @@ final class NotesLoading extends NotesState {
 
 class NotesLoaded extends NotesState {
   final List<Notes> notes;
-  final String searchQuery;
   final List<String> allCategories;
 
   const NotesLoaded({
     required this.notes,
-    this.searchQuery = '',
     this.allCategories = const [
       'Личное',
       'Работа',
@@ -28,7 +26,7 @@ class NotesLoaded extends NotesState {
   });
 
   @override
-  List<Object> get props => [notes, searchQuery, allCategories];
+  List<Object> get props => [notes, allCategories];
 }
 
 class CategoriesLoaded extends NotesState {

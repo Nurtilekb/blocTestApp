@@ -44,9 +44,7 @@ class FirestoreService {
   }
 
   Future<void> updateNoteCategory(String noteId, int newCategoryId) async {
-    await _notesCollection.doc(noteId).update({
-      'category': newCategoryId.toString(),
-    });
+    await _notesCollection.doc(noteId).update({'category': newCategoryId});
   }
 
   // ========== КАТЕГОРИИ ==========
@@ -71,6 +69,10 @@ class FirestoreService {
 
   Future<void> deleteCategory(int id) async {
     await _categoriesCollection.doc(id.toString()).delete();
+  }
+
+  Future<void> updateCategory(int id, String newName) async {
+    await _categoriesCollection.doc(id.toString()).update({'name': newName});
   }
 
   Future<CategoryModel> createCategory(String name) async {

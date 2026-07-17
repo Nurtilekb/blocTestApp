@@ -17,7 +17,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     on<AddNote>(_onAddNote);
     on<DeleteNote>(_onDeleteNote);
     on<UpdateNote>(_onUpdateNote);
-    on<SearchNotes>(_onSearchNotes);
+
     on<UpdateNoteCategory>(_onUpdateNoteCategory);
     on<LoadCategories>(_onLoadCategories);
     on<CreateCategory>(_onCreateCategory);
@@ -25,7 +25,9 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     on<UpdateCategory>(_onUpdateCategory);
   }
   Future<void> _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) async {
-    emit(NotesLoading());
+    if (state is! NotesLoaded) {
+      emit(NotesLoading());
+    }
     try {
       final notes = await repository.getNotes();
       emit(NotesLoaded(notes: notes));
@@ -50,19 +52,6 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     await repository.updateNote(event.note);
     final notes = await repository.getNotes();
     emit(NotesLoaded(notes: notes));
-  }
-
-  Future<void> _onSearchNotes(
-    SearchNotes event,
-    Emitter<NotesState> emit,
-  ) async {
-    if (event.query.isEmpty) {
-      final notes = await repository.getNotes();
-      emit(NotesLoaded(notes: notes));
-      return;
-    }
-    final list = await repository.searchNotes(event.query);
-    emit(NotesLoaded(notes: list, searchQuery: event.query));
   }
 
   Future<void> _onUpdateNoteCategory(
@@ -108,6 +97,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     UpdateCategory event,
     Emitter<NotesState> emit,
   ) async {
+    await repository.updateCategory(event.id, event.newName);
     final categories = await repository.getCategories();
     emit(CategoriesLoaded(categories: categories));
   }

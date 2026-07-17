@@ -36,6 +36,10 @@ class NotesRepository {
     await manager.deleteCategory(id);
   }
 
+  Future<void> updateCategory(int id, String newName) async {
+    await manager.updateCategory(id, newName);
+  }
+
   Future<CategoryModel?> getCategoryById(int id) async {
     return await manager.getCategoryById(id);
   }

@@ -31,14 +31,6 @@ class UpdateNoteCategory extends NotesEvent {
   List<Object> get props => [noteId, newCategory];
 }
 
-class SearchNotes extends NotesEvent {
-  final String query;
-  const SearchNotes({required this.query}); // только именованный параметр
-
-  @override
-  List<Object> get props => [query]; // строго List<Object>
-}
-
 class UpdateNote extends NotesEvent {
   final Notes note;
 

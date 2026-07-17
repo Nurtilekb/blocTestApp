@@ -130,15 +130,12 @@ class _WithNotesState extends State<WithNotes> {
         builder: (context, state) {
           if (state is NotesLoaded) {
             var notes = state.notes;
-
             if (_selectedCategory != 'Все') {
               notes = notes
                   .where((note) => note.category == _selectedCategory)
                   .toList();
             }
-
             notes.sort((a, b) => b.date.compareTo(a.date));
-
             if (notes.isEmpty) {
               return Center(
                 child: Column(
@@ -156,7 +153,6 @@ class _WithNotesState extends State<WithNotes> {
                 ),
               );
             }
-
             return ListView.separated(
               itemCount: notes.length,
               itemBuilder: (context, index) {
@@ -188,8 +184,8 @@ class _WithNotesState extends State<WithNotes> {
             context,
             MaterialPageRoute(builder: (_) => const CreateNotePage()),
           );
-          if (result == true) {
-            // ignore: use_build_context_synchronously
+
+          if (result == true && mounted) {
             context.read<NotesBloc>().add(LoadNotes());
           }
         },

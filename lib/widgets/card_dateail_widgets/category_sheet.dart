@@ -39,9 +39,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.only(),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
@@ -173,7 +171,6 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
     );
   }
 
-  // 👇 Метод для редактирования категории
   void _editCategory(NoteCategory category) {
     final controller = TextEditingController(text: category.name);
 
@@ -216,7 +213,6 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
     );
   }
 
-  //    удаления категории
   void _deleteCategory(NoteCategory category) {
     showDialog(
       context: context,
@@ -319,7 +315,6 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Кнопка редактирования
                   if (isSelected)
                     InkWell(
                       onTap: () => _editCategory(category),
@@ -334,7 +329,6 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                       ),
                     ),
                   const SizedBox(width: 4),
-                  // Кнопка удаления
                   if (isSelected)
                     InkWell(
                       onTap: () => _deleteCategory(category),
@@ -353,7 +347,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
                       Icons.check,
                       size: 18,
                       color: Colors.transparent,
-                    ), // Плейсхолдер чтобы текст не прыгал
+                    ),
                 ],
               ),
             ),
@@ -371,7 +365,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
           if (_isAddingCategory &&
               widget.categoryNameController.text.isNotEmpty) {
             final newCategory = NoteCategory(
-              id: DateTime.now().millisecondsSinceEpoch, // Лучше уникальный ID
+              id: DateTime.now().millisecondsSinceEpoch,
               name: widget.categoryNameController.text,
               icon: Icons.folder,
               color: const Color.fromARGB(255, 116, 85, 202),

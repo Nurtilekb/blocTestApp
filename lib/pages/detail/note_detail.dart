@@ -123,14 +123,26 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     setState(() => _selectedCategory = newCategory);
   }
 
+  Color get _currentCategoryColor {
+    final match = _allCategories.firstWhere(
+      (c) => c.name == _selectedCategory,
+      orElse: () => _allCategories.isNotEmpty
+          ? _allCategories.first
+          : NoteCategory(
+              id: 0,
+              name: _selectedCategory,
+              icon: Icons.folder,
+              color: widget.categoryColor,
+            ),
+    );
+    return match.color;
+  }
+
   void _onCategoryAdded(NoteCategory newCategory) {
     context.read<NotesBloc>().add(CreateCategory(newCategory.name));
-    final match = _allCategories.firstWhere(
-      (c) => c.name == newCategory.name,
-      orElse: () => _allCategories.last,
-    );
     setState(() {
-      _selectedCategory = match.name;
+      _allCategories.add(newCategory);
+      _selectedCategory = newCategory.name;
     });
   }
 
@@ -158,7 +170,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     final oldName = _allCategories
         .firstWhere((c) => c.id == updated.id, orElse: () => updated)
         .name;
-    context.read<NotesBloc>().add(UpdateCategory(id: updated.id, newName: updated.name));
+    context.read<NotesBloc>().add(
+      UpdateCategory(id: updated.id, newName: updated.name),
+    );
     if (_selectedCategory == oldName) {
       setState(() {
         _selectedCategory = updated.name;
@@ -218,69 +232,69 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         }
       },
       child: Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TabBarViewWidgets(
-                forIsediting: isEditing,
-                idGeter: widget.idGeter,
-                onToggleEdit: _toggleEdit,
-              ),
-              const SizedBox(height: 24),
-              DetailTitleField(
-                isEditing: isEditing,
-                controller: _titleController,
-                title: widget.title,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Text(
-                    'Категория',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.w400,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TabBarViewWidgets(
+                  forIsediting: isEditing,
+                  idGeter: widget.idGeter,
+                  onToggleEdit: _toggleEdit,
+                ),
+                const SizedBox(height: 24),
+                DetailTitleField(
+                  isEditing: isEditing,
+                  controller: _titleController,
+                  title: widget.title,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Text(
+                      'Категория',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  DetailCategoryBadge(
-                    category: _selectedCategory,
-                    categoryColor: widget.categoryColor,
-                    idGeter: widget.idGeter,
-                    isEditing: isEditing,
-                    allCategories: _allCategories,
-                    categoryNameController: _categoryNameController,
-                    onCategoryChanged: _onCategoryChanged,
-                    onCategoryAdded: _onCategoryAdded,
-                    onCategoryUpdated: _onCategoryUpdated,
-                    onCategoryDeleted: _onCategoryDeleted,
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Container(
-                height: 1,
-                decoration: BoxDecoration(color: Colors.grey[200]),
-              ),
-              const SizedBox(height: 10),
-              DetailContentField(
-                isEditing: isEditing,
-                controller: _contentController,
-                content: widget.content,
-              ),
-            ],
+                    const SizedBox(width: 10),
+                    DetailCategoryBadge(
+                      category: _selectedCategory,
+                      categoryColor: _currentCategoryColor,
+                      idGeter: widget.idGeter,
+                      isEditing: isEditing,
+                      allCategories: _allCategories,
+                      categoryNameController: _categoryNameController,
+                      onCategoryChanged: _onCategoryChanged,
+                      onCategoryAdded: _onCategoryAdded,
+                      onCategoryUpdated: _onCategoryUpdated,
+                      onCategoryDeleted: _onCategoryDeleted,
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(color: Colors.grey[200]),
+                ),
+                const SizedBox(height: 10),
+                DetailContentField(
+                  isEditing: isEditing,
+                  controller: _contentController,
+                  content: widget.content,
+                ),
+              ],
+            ),
           ),
         ),
+        floatingActionButton: isEditing
+            ? DetailEditButtons(onSave: _saveChanges, onCancel: _cancelEditing)
+            : const SizedBox(),
       ),
-      floatingActionButton: isEditing
-          ? DetailEditButtons(onSave: _saveChanges, onCancel: _cancelEditing)
-          : const SizedBox(),
-    ),
     );
   }
 }

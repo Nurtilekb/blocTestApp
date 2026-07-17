@@ -278,12 +278,9 @@ class _CreateNotePageState extends State<CreateNotePage> {
                     },
                     onCategoryAdded: (newCategory) {
                       context.read<NotesBloc>().add(CreateCategory(newCategory.name));
-                      final match = _categories.firstWhere(
-                        (c) => c.name == newCategory.name,
-                        orElse: () => _categories.last,
-                      );
                       setState(() {
-                        _selectedCategoryId = match.id;
+                        _categories.add(newCategory);
+                        _selectedCategoryId = newCategory.id;
                       });
                     },
                     onCategoryUpdated: (updatedCategory) {
