@@ -188,7 +188,7 @@ class _WithNotesState extends State<WithNotes> {
             context,
             MaterialPageRoute(builder: (_) => const CreateNotePage()),
           );
-          if (result == true && context.mounted) {
+          if (result == true) {
             // ignore: use_build_context_synchronously
             context.read<NotesBloc>().add(LoadNotes());
           }
