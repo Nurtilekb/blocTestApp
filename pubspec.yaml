@@ -37,8 +37,10 @@ dependencies:
   flutter_bloc: ^9.1.1
  
   equatable: ^2.1.0
-  hive_flutter: ^1.1.0
-  hive: ^2.2.3
+  # hive_flutter: ^1.1.0
+  # hive: ^2.2.3
+  firebase_core: ^4.12.1
+  cloud_firestore: ^6.7.1
 
 dev_dependencies:
   flutter_test:
@@ -51,8 +53,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   path: ^1.9.1
-  hive_generator: ^2.0.1
-  build_runner: ^2.4.13
+  # hive_generator: ^2.0.1
+  # build_runner: ^2.4.13
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
