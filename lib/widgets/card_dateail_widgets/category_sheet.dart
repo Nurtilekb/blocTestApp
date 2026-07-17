@@ -39,7 +39,9 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
@@ -146,15 +148,20 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       child: _isAddingCategory
-          ? Column(
-              children: [
-                AppInputWidget(
-                  controller: widget.categoryNameController,
-                  hintText: 'Название категории...',
-                  autofocus1: true,
-                ),
-                const SizedBox(height: 16),
-              ],
+          ? AnimatedOpacity(
+              // ✅ Плавное появление
+              duration: const Duration(milliseconds: 300),
+              opacity: 1.0,
+              child: Column(
+                children: [
+                  AppInputWidget(
+                    controller: widget.categoryNameController,
+                    hintText: 'Название категории...',
+                    autofocus1: true,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
             )
           : const SizedBox.shrink(),
     );
@@ -256,104 +263,113 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
       );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: widget.categories.length,
-      itemBuilder: (context, index) {
-        final category = widget.categories[index];
-        final isSelected = _localSelectedId == category.id;
+    return SizedBox(
+      height: 400,
+      child: Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(widget.categories.length, (index) {
+              final category = widget.categories[index];
+              final isSelected = _localSelectedId == category.id;
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                _localSelectedId = category.id;
-              });
-              widget.onCategorySelected(category.id);
-            },
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? category.color
-                    : category.color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 2),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    category.icon,
-                    size: 18,
-                    color: isSelected ? Colors.white : category.color,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      category.name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isSelected ? Colors.white : category.color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (isSelected)
-                    InkWell(
-                      onTap: () => _editCategory(category),
-                      borderRadius: BorderRadius.circular(6),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.edit_outlined,
-                          size: 16,
-                          color: isSelected ? Colors.white : category.color,
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _localSelectedId = category.id;
+                    });
+                    widget.onCategorySelected(category.id);
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? category.color
+                          : category.color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 16,
+                          offset: const Offset(0, 2),
                         ),
-                      ),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
-                  const SizedBox(width: 4),
-                  if (isSelected)
-                    InkWell(
-                      onTap: () => _deleteCategory(category),
-                      borderRadius: BorderRadius.circular(6),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.delete_outline,
+                    child: Row(
+                      children: [
+                        Icon(
+                          category.icon,
                           size: 18,
                           color: isSelected ? Colors.white : category.color,
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            category.name,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isSelected ? Colors.white : category.color,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (isSelected)
+                          InkWell(
+                            onTap: () => _editCategory(category),
+                            borderRadius: BorderRadius.circular(6),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.edit_outlined,
+                                size: 16,
+                                color: isSelected
+                                    ? Colors.white
+                                    : category.color,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(width: 4),
+                        if (isSelected)
+                          InkWell(
+                            onTap: () => _deleteCategory(category),
+                            borderRadius: BorderRadius.circular(6),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.delete_outline,
+                                size: 18,
+                                color: isSelected
+                                    ? Colors.white
+                                    : category.color,
+                              ),
+                            ),
+                          ),
+                        if (!isSelected)
+                          const Icon(
+                            Icons.check,
+                            size: 18,
+                            color: Colors.transparent,
+                          ),
+                      ],
                     ),
-                  if (!isSelected)
-                    const Icon(
-                      Icons.check,
-                      size: 18,
-                      color: Colors.transparent,
-                    ),
-                ],
-              ),
-            ),
+                  ),
+                ),
+              );
+            }),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

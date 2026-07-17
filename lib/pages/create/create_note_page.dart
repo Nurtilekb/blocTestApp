@@ -122,27 +122,27 @@ class _CreateNotePageState extends State<CreateNotePage> {
         }
       },
       child: Scaffold(
-      body: Form(
-        key: _formKey,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTopBar(),
-                const SizedBox(height: 20),
-                _buildTitleField(),
-                const SizedBox(height: 12),
-                _buildCategorySelector(),
-                const SizedBox(height: 16),
-                _buildContentField(),
-              ],
+        body: Form(
+          key: _formKey,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTopBar(),
+                  const SizedBox(height: 20),
+                  _buildTitleField(),
+                  const SizedBox(height: 12),
+                  _buildCategorySelector(),
+                  const SizedBox(height: 16),
+                  _buildContentField(),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -269,41 +269,64 @@ class _CreateNotePageState extends State<CreateNotePage> {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (sheetContext) {
-                  return CategorySheetContent(
-                    categories: _categories,
-                    selectedCategoryId: _selectedCategoryId,
-                    categoryNameController: _categoryNameController,
-                    onCategorySelected: (id) {
-                      setState(() => _selectedCategoryId = id);
-                    },
-                    onCategoryAdded: (newCategory) {
-                      context.read<NotesBloc>().add(CreateCategory(newCategory.name));
-                      setState(() {
-                        _categories.add(newCategory);
-                        _selectedCategoryId = newCategory.id;
-                      });
-                    },
-                    onCategoryUpdated: (updatedCategory) {
-                      context.read<NotesBloc>().add(UpdateCategory(
-                        id: updatedCategory.id,
-                        newName: updatedCategory.name,
-                      ));
-                      if (_selectedCategoryId == updatedCategory.id) {
-                        setState(() {
-                          _selectedCategoryId = updatedCategory.id;
-                        });
-                      }
-                    },
-                    onCategoryDeleted: (categoryId) {
-                      context.read<NotesBloc>().add(DeleteCategory(categoryId));
-                      if (_selectedCategoryId == categoryId) {
-                        setState(() {
-                          _selectedCategoryId = _categories.isNotEmpty
-                              ? _categories.first.id
-                              : -1;
-                        });
-                      }
-                    },
+                  return DraggableScrollableSheet(
+                    initialChildSize: 0.6, // 60% высоты экрана
+                    minChildSize: 0.4, // Минимум 40%
+                    maxChildSize: 0.9, // Максимум 90%
+                    expand: false,
+                    builder:
+                        (
+                          BuildContext context,
+                          ScrollController scrollController,
+                        ) {
+                          return CategorySheetContent(
+                            categories: _categories,
+                            selectedCategoryId: _selectedCategoryId,
+                            categoryNameController: _categoryNameController,
+                            onCategorySelected: (id) {
+                              setState(() => _selectedCategoryId = id);
+                            },
+                            onCategoryAdded: (newCategory) {
+                              context.read<NotesBloc>().add(
+                                CreateCategory(newCategory.name),
+                              );
+                              setState(() {
+                                _categories.add(newCategory);
+                                _selectedCategoryId = newCategory.id;
+                              });
+                            },
+                            onCategoryUpdated: (updatedCategory) {
+                              context.read<NotesBloc>().add(
+                                UpdateCategory(
+                                  id: updatedCategory.id,
+                                  newName: updatedCategory.name,
+                                ),
+                              );
+                              if (_selectedCategoryId == updatedCategory.id) {
+                                setState(() {
+                                  _selectedCategoryId = updatedCategory.id;
+                                });
+                              }
+                            },
+                            onCategoryDeleted: (categoryId) {
+                              context.read<NotesBloc>().add(
+                                DeleteCategory(categoryId),
+                              );
+                              setState(() {
+                                _categories.removeWhere(
+                                  (c) => c.id == categoryId,
+                                );
+                              });
+                              if (_selectedCategoryId == categoryId) {
+                                setState(() {
+                                  _selectedCategoryId = _categories.isNotEmpty
+                                      ? _categories.first.id
+                                      : -1;
+                                });
+                              }
+                            },
+                          );
+                        },
                   );
                 },
               );

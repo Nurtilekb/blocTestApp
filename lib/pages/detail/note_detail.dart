@@ -147,23 +147,20 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryDeleted(int id) {
-    final deletedCategory = _allCategories.firstWhere(
-      (c) => c.id == id,
-      orElse: () => _allCategories.first,
-    );
-    final deletedName = deletedCategory.name;
-    context.read<NotesBloc>().add(DeleteCategory(id));
-    if (_allCategories.isEmpty) {
-      setState(() {
+    final idx = _allCategories.indexWhere((c) => c.id == id);
+    if (idx == -1) return;
+    final deletedName = _allCategories[idx].name;
+
+    setState(() {
+      _allCategories.removeAt(idx);
+      if (_allCategories.isEmpty) {
         _selectedCategory = '';
-      });
-      return;
-    }
-    if (_selectedCategory == deletedName) {
-      setState(() {
+      } else if (_selectedCategory == deletedName) {
         _selectedCategory = _allCategories.first.name;
-      });
-    }
+      }
+    });
+
+    context.read<NotesBloc>().add(DeleteCategory(id));
   }
 
   void _onCategoryUpdated(NoteCategory updated) {
