@@ -8,42 +8,42 @@ class NotesRepository {
 
   NotesRepository(this.manager);
 
-  List<Notes> getNotes() {
-    return manager.getAllNotes();
+  Future<List<Notes>> getNotes() async {
+    return await manager.getAllNotes();
   }
 
-  void createNote(Notes note) {
-    manager.addNote(note); // 👈 Исправлено: передаём объект Notes
+  Future<void> createNote(Notes note) async {
+    await manager.addNote(note); // 👈 Исправлено: передаём объект Notes
   }
 
-  void deleteNote(String id) {
-    manager.deleteNote(id); // 👈 Исправлено: вызов метода
+  Future<void> deleteNote(String id) async {
+    await manager.deleteNote(id); // 👈 Исправлено: вызов метода
   }
 
-  void updateNote(Notes note) {
-    manager.updateNote(note); // 👈 Исправлено: updateNote вместо updateCard
+  Future<void> updateNote(Notes note) async {
+    await manager.updateNote(note); // 👈 Исправлено: updateNote вместо updateCard
   }
 
-  List<Notes> searchNotes(String query) {
-    return manager.searchNotes(
+  Future<List<Notes>> searchNotes(String query) async {
+    return await manager.searchNotes(
       query,
     ); // 👈 Исправлено: searchNotes вместо searchCards
   }
 
   // 👇 ДОБАВИТЬ: работа с категориями
-  List<CategoryModel> getCategories() {
-    return manager.getAllCategories();
+  Future<List<CategoryModel>> getCategories() async {
+    return await manager.getAllCategories();
   }
 
-  Future<CategoryModel> createCategory(String name) {
-    return manager.createCategory(name);
+  Future<CategoryModel> createCategory(String name) async {
+    return await manager.createCategory(name);
   }
 
-  CategoryModel? getCategoryById(int id) {
-    return manager.getCategoryById(id);
+  Future<CategoryModel?> getCategoryById(int id) async {
+    return await manager.getCategoryById(id);
   }
 
-  void updateNoteCategory(String noteId, int newCategoryId) {
-    manager.updateNoteCategory(noteId, newCategoryId);
+  Future<void> updateNoteCategory(String noteId, int newCategoryId) async {
+    await manager.updateNoteCategory(noteId, newCategoryId);
   }
 }

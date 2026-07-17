@@ -1,22 +1,8 @@
-import 'package:hive/hive.dart';
-
-part 'note.g.dart'; // Это важно! Ссылка на сгенерированный файл
-
-@HiveType(typeId: 0)
 class Notes {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   String title;
-
-  @HiveField(2)
   String description;
-
-  @HiveField(3)
   DateTime date;
-
-  @HiveField(4)
   String category;
 
   Notes({
@@ -43,25 +29,25 @@ class Notes {
     );
   }
 
-  // Преобразование в Map (для JSON)
+  // Преобразование в Map (для Firestore)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'title': title,
       'description': description,
       'category': category,
-      'date': date.toIso8601String(),
+      'date': date.millisecondsSinceEpoch,
     };
   }
 
-  // Создание из Map (из JSON)
+  // Создание из Map (из Firestore)
   factory Notes.fromJson(Map<String, dynamic> json) {
     return Notes(
       id: json['id'],
       title: json['title'],
       description: json['description'],
       category: json['category'],
-      date: DateTime.fromMicrosecondsSinceEpoch(json['date'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(json['date'] as int),
     );
   }
 }

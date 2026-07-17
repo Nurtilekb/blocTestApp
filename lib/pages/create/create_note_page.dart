@@ -63,8 +63,8 @@ class _CreateNotePageState extends State<CreateNotePage> {
     _loadCategories();
   }
 
-  void _loadCategories() {
-    final savedCategories = CardManager().getAllCategories();
+  void _loadCategories() async {
+    final savedCategories = await CardManager().getAllCategories();
     final defaults = Map.fromEntries(
       _defaultCategories.map((c) => MapEntry(c.name, c)),
     );
@@ -144,7 +144,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
     }
 
     if (_categoryNameController.text.isNotEmpty) {
-      // 👇 СОХРАНЯЕМ НОВУЮ КАТЕГОРИЮ В HIVE
+      // 👇 СОХРАНЯЕМ НОВУЮ КАТЕГОРИЮ В FIRESTORE
       final categoryName = _categoryNameController.text.trim();
       await CardManager().createCategory(categoryName);
       _categoryNameController.clear();
@@ -272,7 +272,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
                     },
                     onCategoryAdded: (newCategory) async {
                       await CardManager().createCategory(newCategory.name);
-                      _loadCategories();
+                      await _loadCategories();
                       final match = _categories.firstWhere(
                         (c) => c.name == newCategory.name,
                         orElse: () => _categories.last,
