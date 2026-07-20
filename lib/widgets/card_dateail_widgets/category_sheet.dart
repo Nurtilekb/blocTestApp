@@ -65,7 +65,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
               const SizedBox(height: 12),
               _buildCategoryChips(),
             ],
-            const SizedBox(height: 24),
+            const SizedBox(height: 14),
             _buildSaveButton(),
           ],
         ),
@@ -152,15 +152,10 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
               // ✅ Плавное появление
               duration: const Duration(milliseconds: 300),
               opacity: 1.0,
-              child: Column(
-                children: [
-                  AppInputWidget(
-                    controller: widget.categoryNameController,
-                    hintText: 'Название категории...',
-                    autofocus1: true,
-                  ),
-                  const SizedBox(height: 16),
-                ],
+              child: AppInputWidget(
+                controller: widget.categoryNameController,
+                hintText: 'Название категории...',
+                autofocus1: true,
               ),
             )
           : const SizedBox.shrink(),
@@ -264,7 +259,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
     }
 
     return SizedBox(
-      height: 400,
+      height: 300,
       child: Expanded(
         child: SingleChildScrollView(
           child: Column(
