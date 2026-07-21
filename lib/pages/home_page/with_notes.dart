@@ -1,6 +1,6 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/pages/create/create_note_page.dart';
-import 'package:bloctestapp/widgets/note_widget.dart';
+import 'package:bloctestapp/widgets/note_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,6 +41,7 @@ class _WithNotesState extends State<WithNotes> {
       child: SizedBox(
         height: 40,
         child: BlocBuilder<NotesBloc, NotesState>(
+          buildWhen: (previous, current) => current is NotesLoaded,
           builder: (context, state) {
             if (state is! NotesLoaded) return const SizedBox();
 
@@ -126,6 +127,7 @@ class _WithNotesState extends State<WithNotes> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18.0),
       child: BlocBuilder<NotesBloc, NotesState>(
+        buildWhen: (previous, current) => current is NotesLoaded,
         builder: (context, state) {
           if (state is NotesLoaded) {
             var notes = state.notes;
@@ -168,7 +170,16 @@ class _WithNotesState extends State<WithNotes> {
               separatorBuilder: (_, _) => const SizedBox(height: 12),
             );
           }
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Пожалуйста подождите загрузку'),
+                SizedBox(height: 12),
+                CircularProgressIndicator(),
+              ],
+            ),
+          );
         },
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
-import 'package:bloctestapp/widgets/note_widget.dart';
+import 'package:bloctestapp/widgets/note_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -35,7 +35,8 @@ class _SearchPageState extends State<SearchPage> {
                   Expanded(
                     child: AppInputWidget(
                       autofocus1: true,
-                      onChanged: (value) => setState(() => _searchQuery = value),
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
                       filledColor: Colors.white,
                       cursorColor: const Color.fromARGB(255, 69, 100, 240),
                       leading: const Icon(Icons.search, color: Colors.blueGrey),
@@ -75,6 +76,10 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     return BlocBuilder<NotesBloc, NotesState>(
+      buildWhen: (previous, current) =>
+          current is NotesLoaded ||
+          current is NotesLoading ||
+          current is NotesError,
       builder: (context, state) {
         if (state is NotesLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -92,9 +97,11 @@ class _SearchPageState extends State<SearchPage> {
         if (state is NotesLoaded) {
           final query = _searchQuery.toLowerCase();
           final results = state.notes
-              .where((note) =>
-                  note.title.toLowerCase().contains(query) ||
-                  note.description.toLowerCase().contains(query))
+              .where(
+                (note) =>
+                    note.title.toLowerCase().contains(query) ||
+                    note.description.toLowerCase().contains(query),
+              )
               .toList();
 
           if (results.isEmpty) {
