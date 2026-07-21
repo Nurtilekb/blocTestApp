@@ -1,4 +1,4 @@
-import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/widgets/app_input_widget.dart';
 import 'package:bloctestapp/widgets/note_card_widget.dart';
 import 'package:flutter/material.dart';

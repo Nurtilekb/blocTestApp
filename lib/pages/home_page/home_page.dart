@@ -1,4 +1,4 @@
-import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/pages/home_page/with_notes.dart';
 import 'package:bloctestapp/pages/home_page/without_notes.dart';
 import 'package:bloctestapp/pages/search/search_page.dart';

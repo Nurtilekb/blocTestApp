@@ -15,12 +15,10 @@ final class NotesLoading extends NotesState {
 
 class NotesLoaded extends NotesState {
   final List<Notes> notes;
-  final List<CategoryModel> categories; // Исправлено: CategoryModel вместо List<String>
+  final List<CategoryModel>
+  categories; // Исправлено: CategoryModel вместо List<String>
 
-  const NotesLoaded({
-    required this.notes,
-    required this.categories,
-  });
+  const NotesLoaded({required this.notes, required this.categories});
 
   @override
   List<Object?> get props => [notes, categories];

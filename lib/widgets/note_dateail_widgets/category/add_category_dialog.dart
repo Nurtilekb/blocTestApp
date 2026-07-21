@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 
 class AddCategoryDialog extends StatefulWidget {
   final String idGeter;
@@ -30,9 +30,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
     if (newCategory.isEmpty) return;
 
     final tempId = DateTime.now().millisecondsSinceEpoch.toString();
-    context.read<NotesBloc>().add(
-      CreateCategory(newCategory, id: tempId),
-    );
+    context.read<NotesBloc>().add(CreateCategory(newCategory, id: tempId));
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

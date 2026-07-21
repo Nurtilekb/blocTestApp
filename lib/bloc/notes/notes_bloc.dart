@@ -30,10 +30,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     on<UpdateCategory>(_onUpdateCategory);
   }
 
-  Future<void> _onLoadNotes(
-    LoadNotes event,
-    Emitter<NotesState> emit,
-  ) async {
+  Future<void> _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) async {
     emit(const NotesLoading());
     try {
       final notes = await repository.getNotes();
@@ -58,10 +55,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     }
   }
 
-  Future<void> _onDeleteNote(
-    DeleteNote event,
-    Emitter<NotesState> emit,
-  ) async {
+  Future<void> _onDeleteNote(DeleteNote event, Emitter<NotesState> emit) async {
     try {
       await repository.deleteNote(event.id);
       final notes = await repository.getNotes();
@@ -72,10 +66,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     }
   }
 
-  Future<void> _onAddNote(
-    AddNote event,
-    Emitter<NotesState> emit,
-  ) async {
+  Future<void> _onAddNote(AddNote event, Emitter<NotesState> emit) async {
     try {
       await repository.createNote(event.note);
       final notes = await repository.getNotes();
@@ -86,10 +77,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     }
   }
 
-  Future<void> _onUpdateNote(
-    UpdateNote event,
-    Emitter<NotesState> emit,
-  ) async {
+  Future<void> _onUpdateNote(UpdateNote event, Emitter<NotesState> emit) async {
     try {
       await repository.updateNote(event.note);
       final notes = await repository.getNotes();

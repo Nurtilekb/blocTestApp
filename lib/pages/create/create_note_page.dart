@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/models/notes_model.dart';
 import 'package:bloctestapp/models/category_model.dart';
 import 'package:bloctestapp/widgets/note_dateail_widgets/category/category_sheet.dart';
@@ -300,7 +300,10 @@ class _CreateNotePageState extends State<CreateNotePage> {
                             },
                             onCategoryAdded: (newCategory) {
                               context.read<NotesBloc>().add(
-                                CreateCategory(newCategory.name, id: newCategory.id),
+                                CreateCategory(
+                                  newCategory.name,
+                                  id: newCategory.id,
+                                ),
                               );
                               setState(() {
                                 _categories.add(newCategory);

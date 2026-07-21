@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:bloctestapp/widgets/note_dateail_widgets/detail_content_field.dart';
 import 'package:bloctestapp/widgets/note_dateail_widgets/detail_category_badge.dart';
 import 'package:bloctestapp/widgets/note_dateail_widgets/detail_edit_buttons.dart';
-import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/models/notes_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -136,7 +136,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryAdded(NoteCategory newCategory) {
-    context.read<NotesBloc>().add(CreateCategory(newCategory.name, id: newCategory.id));
+    context.read<NotesBloc>().add(
+      CreateCategory(newCategory.name, id: newCategory.id),
+    );
     setState(() {
       _allCategories.add(newCategory);
       _selectedCategory = newCategory.name;

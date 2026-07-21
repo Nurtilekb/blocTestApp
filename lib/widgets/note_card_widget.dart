@@ -1,4 +1,4 @@
-import 'package:bloctestapp/bloc/notes_bloc.dart';
+import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/pages/detail/note_detail.dart';
 import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
