@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "38364816795",
+    "project_id": "bloc-test-app1",
+    "storage_bucket": "bloc-test-app1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38364816795:android:da51016dc0cd17f358ed3e",
+        "android_client_info": {
+          "package_name": "com.example.bloctestapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzbeL_JO-1pJL-zttkgLdDBRtNtg69ce8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

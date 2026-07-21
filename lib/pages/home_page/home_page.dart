@@ -1,6 +1,6 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/pages/hompage/with_notes.dart';
-import 'package:bloctestapp/pages/hompage/without_notes.dart';
+import 'package:bloctestapp/pages/home_page/with_notes.dart';
+import 'package:bloctestapp/pages/home_page/without_notes.dart';
 import 'package:bloctestapp/pages/search/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,15 +41,7 @@ class MyHomePage extends StatelessWidget {
         ),
       ),
       body: BlocConsumer<NotesBloc, NotesState>(
-        listener: (context, state) {
-          if (state is CategoriesLoaded) {
-            context.read<NotesBloc>().add(LoadNotes());
-          }
-        },
-        listenWhen: (context, state) {
-          if (state is CategoriesLoaded) return true;
-          return false;
-        },
+        listener: (context, state) {},
         buildWhen: (context, state) {
           if (state is NotesLoading ||
               state is NotesLoaded ||

@@ -1,6 +1,4 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
-import 'package:bloctestapp/models/category_model.dart';
 import 'package:bloctestapp/pages/create/create_note_page.dart';
 import 'package:bloctestapp/widgets/note_widget.dart';
 import 'package:flutter/material.dart';
@@ -15,21 +13,6 @@ class WithNotes extends StatefulWidget {
 
 class _WithNotesState extends State<WithNotes> {
   String _selectedCategory = 'Все';
-  List<CategoryModel> _firestoreCategories = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCategories();
-  }
-
-  void _loadCategories() async {
-    final repo = context.read<NotesRepository>();
-    final categories = await repo.getCategories();
-    if (mounted) {
-      setState(() => _firestoreCategories = categories);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +52,7 @@ class _WithNotesState extends State<WithNotes> {
 
             allCategories.add('Все');
 
-            for (var cat in _firestoreCategories) {
+            for (var cat in state.categories) {
               if (!allCategories.contains(cat.name)) {
                 allCategories.add(cat.name);
               }

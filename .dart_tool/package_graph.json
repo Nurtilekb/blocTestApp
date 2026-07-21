@@ -7,6 +7,7 @@
       "name": "bloctestapp",
       "version": "1.0.0+1",
       "dependencies": [
+        "bloc",
         "cloud_firestore",
         "cupertino_icons",
         "equatable",
@@ -78,6 +79,13 @@
       "version": "2.1.0",
       "dependencies": [
         "collection",
+        "meta"
+      ]
+    },
+    {
+      "name": "bloc",
+      "version": "9.2.1",
+      "dependencies": [
         "meta"
       ]
     },
@@ -245,13 +253,6 @@
         "collection",
         "flutter",
         "nested"
-      ]
-    },
-    {
-      "name": "bloc",
-      "version": "9.2.1",
-      "dependencies": [
-        "meta"
       ]
     },
     {

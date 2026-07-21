@@ -6,12 +6,12 @@ import 'category_chips_list.dart';
 
 class CategorySheetContent extends StatefulWidget {
   final List<NoteCategory> categories;
-  final int selectedCategoryId;
+  final String selectedCategoryId;
   final TextEditingController categoryNameController;
-  final ValueChanged<int> onCategorySelected;
+  final ValueChanged<String> onCategorySelected;
   final ValueChanged<NoteCategory> onCategoryAdded;
   final ValueChanged<NoteCategory>? onCategoryUpdated;
-  final ValueChanged<int>? onCategoryDeleted;
+  final ValueChanged<String>? onCategoryDeleted;
 
   const CategorySheetContent({
     super.key,
@@ -30,7 +30,7 @@ class CategorySheetContent extends StatefulWidget {
 
 class _CategorySheetContentState extends State<CategorySheetContent> {
   bool _isAddingCategory = false;
-  late int _localSelectedId;
+  late String _localSelectedId;
 
   @override
   void initState() {
@@ -191,7 +191,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
           if (_isAddingCategory &&
               widget.categoryNameController.text.isNotEmpty) {
             final newCategory = NoteCategory(
-              id: DateTime.now().millisecondsSinceEpoch,
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
               name: widget.categoryNameController.text,
               icon: Icons.folder,
               color: const Color.fromARGB(255, 116, 85, 202),

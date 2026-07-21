@@ -42,10 +42,7 @@ class UpdateNoteCategory extends NotesEvent {
   final String noteId;
   final String newCategoryId; // Исправлено: String вместо newCategory
 
-  const UpdateNoteCategory({
-    required this.noteId,
-    required this.newCategoryId,
-  });
+  const UpdateNoteCategory({required this.noteId, required this.newCategoryId});
 
   @override
   List<Object?> get props => [noteId, newCategoryId];
@@ -64,15 +61,16 @@ class LoadCategories extends NotesEvent {}
 
 class CreateCategory extends NotesEvent {
   final String name;
+  final String? id;
 
-  const CreateCategory(this.name);
+  const CreateCategory(this.name, {this.id});
 
   @override
-  List<Object?> get props => [name];
+  List<Object?> get props => [name, id];
 }
 
 class DeleteCategory extends NotesEvent {
-  final String id; // Исправлено: String вместо int
+  final String id;
 
   const DeleteCategory(this.id);
 
@@ -81,13 +79,10 @@ class DeleteCategory extends NotesEvent {
 }
 
 class UpdateCategory extends NotesEvent {
-  final String id; // Исправлено: String вместо int
+  final String id;
   final String newName;
 
-  const UpdateCategory({
-    required this.id,
-    required this.newName,
-  });
+  const UpdateCategory({required this.id, required this.newName});
 
   @override
   List<Object?> get props => [id, newName];

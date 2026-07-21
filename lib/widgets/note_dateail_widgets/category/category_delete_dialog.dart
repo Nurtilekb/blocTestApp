@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 void showDeleteCategoryDialog({
   required BuildContext context,
   required NoteCategory category,
-  ValueChanged<int>? onCategoryDeleted,
+  ValueChanged<String>? onCategoryDeleted,
 }) {
   showDialog(
     context: context,

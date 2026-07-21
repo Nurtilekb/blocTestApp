@@ -47,8 +47,8 @@ class NotesRepository {
     return await categoryService.getAllCategories();
   }
 
-  Future<CategoryModel> createCategory(String name) async {
-    return await categoryService.createCategory(name);
+  Future<CategoryModel> createCategory(String name, {String? id}) async {
+    return await categoryService.createCategory(name, id: id);
   }
 
   Future<void> deleteCategory(String id) async {

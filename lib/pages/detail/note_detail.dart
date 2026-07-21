@@ -1,12 +1,12 @@
 import 'package:bloctestapp/pages/create/create_note_page.dart'
     show NoteCategory;
 import 'package:bloctestapp/models/category_model.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/detail_tittle_field.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/tab_bar_view.dart';
+import 'package:bloctestapp/widgets/note_dateail_widgets/detail_tittle_field.dart';
+import 'package:bloctestapp/widgets/note_dateail_widgets/tab_bar_view.dart';
 import 'package:flutter/material.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/detail_content_field.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/detail_category_badge.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/detail_edit_buttons.dart';
+import 'package:bloctestapp/widgets/note_dateail_widgets/detail_content_field.dart';
+import 'package:bloctestapp/widgets/note_dateail_widgets/detail_category_badge.dart';
+import 'package:bloctestapp/widgets/note_dateail_widgets/detail_edit_buttons.dart';
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/notes_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +38,7 @@ class NoteDetailPage extends StatefulWidget {
 class _NoteDetailPageState extends State<NoteDetailPage> {
   bool isEditing = false;
   String _selectedCategory = '';
-  int _selectedCategoryId = 0;
+  String _selectedCategoryId = '';
   List<NoteCategory> _allCategories = [];
 
   late final TextEditingController _titleController;
@@ -49,7 +49,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   void initState() {
     super.initState();
     _selectedCategory = widget.category;
-    _selectedCategoryId = int.tryParse(widget.categoryId) ?? 0;
+    _selectedCategoryId = widget.categoryId;
     _titleController = TextEditingController(text: widget.title);
     _contentController = TextEditingController(text: widget.content);
     _loadCategories();
@@ -108,7 +108,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       orElse: () => _allCategories.isNotEmpty
           ? _allCategories.first
           : NoteCategory(
-              id: 0,
+              id: '',
               name: newCategory,
               icon: Icons.folder,
               color: const Color(0xFFAF52DE),
@@ -126,7 +126,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       orElse: () => _allCategories.isNotEmpty
           ? _allCategories.first
           : NoteCategory(
-              id: 0,
+              id: '',
               name: _selectedCategory,
               icon: Icons.folder,
               color: widget.categoryColor,
@@ -136,7 +136,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryAdded(NoteCategory newCategory) {
-    context.read<NotesBloc>().add(CreateCategory(newCategory.name));
+    context.read<NotesBloc>().add(CreateCategory(newCategory.name, id: newCategory.id));
     setState(() {
       _allCategories.add(newCategory);
       _selectedCategory = newCategory.name;
@@ -144,7 +144,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     });
   }
 
-  void _onCategoryDeleted(int id) {
+  void _onCategoryDeleted(String id) {
     final idx = _allCategories.indexWhere((c) => c.id == id);
     if (idx == -1) return;
     final deletedName = _allCategories[idx].name;
@@ -153,7 +153,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       _allCategories.removeAt(idx);
       if (_allCategories.isEmpty) {
         _selectedCategory = '';
-        _selectedCategoryId = -1;
+        _selectedCategoryId = '';
       } else if (_selectedCategory == deletedName) {
         _selectedCategory = _allCategories.first.name;
         _selectedCategoryId = _allCategories.first.id;
@@ -194,7 +194,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         description: _contentController.text,
         category: _selectedCategory,
         date: DateTime.now(),
-        categoryId: _selectedCategoryId.toString(),
+        categoryId: _selectedCategoryId,
       );
 
       context.read<NotesBloc>().add(UpdateNote(updatedNote));
@@ -216,7 +216,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     _titleController.text = widget.title;
     _contentController.text = widget.content;
     _selectedCategory = widget.category;
-    _selectedCategoryId = int.tryParse(widget.categoryId) ?? 0;
+    _selectedCategoryId = widget.categoryId;
     setState(() {
       isEditing = false;
     });

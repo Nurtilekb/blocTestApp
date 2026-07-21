@@ -1,7 +1,7 @@
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
 import 'package:bloctestapp/firebase_options.dart';
-import 'package:bloctestapp/pages/hompage/home_page.dart';
+import 'package:bloctestapp/pages/home_page/home_page.dart';
 import 'package:bloctestapp/services/category_service.dart';
 import 'package:bloctestapp/services/notes_service.dart';
 import 'package:firebase_core/firebase_core.dart';

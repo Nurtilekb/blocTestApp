@@ -120,7 +120,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   ) async {
     emit(const NotesLoading());
     try {
-      await repository.createCategory(event.name);
+      await repository.createCategory(event.name, id: event.id);
       final categories = await repository.getCategories();
       final notes = await repository.getNotes();
       emit(NotesLoaded(notes: notes, categories: categories));
@@ -163,13 +163,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   ) async {
     try {
       final categories = await repository.getCategories();
-      // Сохраняем текущее состояние заметок если оно есть
-      final currentState = state;
-      List<Notes> currentNotes = const [];
-      if (currentState is NotesLoaded) {
-        currentNotes = currentState.notes;
-      }
-      emit(NotesLoaded(notes: currentNotes, categories: categories));
+      emit(CategoriesLoaded(categories: categories));
     } catch (e) {
       emit(NotesError('Ошибка загрузки категорий: ${e.toString()}'));
     }

@@ -2,7 +2,6 @@ import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/pages/detail/note_detail.dart';
 import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NoteCardWidget extends StatefulWidget {

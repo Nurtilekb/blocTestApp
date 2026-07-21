@@ -54,13 +54,12 @@ class CategoryService {
   }
 
   /// Создать категорию (исправлено: используем UUID вместо инкремента)
-  Future<CategoryModel> createCategory(String name) async {
+  Future<CategoryModel> createCategory(String name, {String? id}) async {
     try {
-      // Генерируем уникальный ID на основе timestamp
-      final id = DateTime.now().millisecondsSinceEpoch.toString();
-      
-      final category = CategoryModel(id: id, name: name);
-      await _categoriesCollection.doc(id).set(category.toJson());
+      final categoryId = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+      final category = CategoryModel(id: categoryId, name: name);
+      await _categoriesCollection.doc(categoryId).set(category.toJson());
       return category;
     } catch (e) {
       throw Exception('Ошибка при создании категории: $e');

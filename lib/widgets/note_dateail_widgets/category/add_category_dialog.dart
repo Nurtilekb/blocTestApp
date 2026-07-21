@@ -29,8 +29,9 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
     final newCategory = _controller.text.trim();
     if (newCategory.isEmpty) return;
 
+    final tempId = DateTime.now().millisecondsSinceEpoch.toString();
     context.read<NotesBloc>().add(
-      UpdateNoteCategory(noteId: widget.idGeter, newCategory: newCategory),
+      CreateCategory(newCategory, id: tempId),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(

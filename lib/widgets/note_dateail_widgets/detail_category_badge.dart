@@ -1,5 +1,5 @@
 import 'package:bloctestapp/pages/create/create_note_page.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/category/category_sheet.dart';
+import 'package:bloctestapp/widgets/note_dateail_widgets/category/category_sheet.dart';
 import 'package:flutter/material.dart';
 
 class DetailCategoryBadge extends StatelessWidget {
@@ -12,7 +12,7 @@ class DetailCategoryBadge extends StatelessWidget {
   final ValueChanged<String> onCategoryChanged;
   final ValueChanged<NoteCategory> onCategoryAdded;
   final ValueChanged<NoteCategory>? onCategoryUpdated;
-  final ValueChanged<int>? onCategoryDeleted;
+  final ValueChanged<String>? onCategoryDeleted;
 
   const DetailCategoryBadge({
     super.key,
@@ -42,7 +42,7 @@ class DetailCategoryBadge extends StatelessWidget {
             categories: allCategories,
             selectedCategoryId: _getCategoryId(),
             categoryNameController: categoryNameController,
-            onCategorySelected: (int categoryId) {
+            onCategorySelected: (String categoryId) {
               final selectedCategory = allCategories.firstWhere(
                 (cat) => cat.id == categoryId,
               );
@@ -89,7 +89,7 @@ class DetailCategoryBadge extends StatelessWidget {
     );
   }
 
-  int _getCategoryId() {
+  String _getCategoryId() {
     final found = allCategories.firstWhere(
       (cat) => cat.name == category,
       orElse: () => allCategories.first,

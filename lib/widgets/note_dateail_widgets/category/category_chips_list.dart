@@ -6,10 +6,10 @@ import 'category_delete_dialog.dart';
 
 class CategoryChipsList extends StatelessWidget {
   final List<NoteCategory> categories;
-  final int selectedCategoryId;
-  final ValueChanged<int> onCategorySelected;
+  final String selectedCategoryId;
+  final ValueChanged<String> onCategorySelected;
   final ValueChanged<NoteCategory>? onCategoryUpdated;
-  final ValueChanged<int>? onCategoryDeleted;
+  final ValueChanged<String>? onCategoryDeleted;
 
   const CategoryChipsList({
     super.key,
