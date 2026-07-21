@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/models/note.dart';
+import 'package:bloctestapp/models/notes_model.dart';
 import 'package:bloctestapp/models/category_model.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/category_sheet.dart';
+import 'package:bloctestapp/widgets/card_dateail_widgets/category/category_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bloctestapp/constants/app_constants.dart';
 
 class NoteCategory {
   final int id;
@@ -36,27 +37,18 @@ class _CreateNotePageState extends State<CreateNotePage> {
 
   int _selectedCategoryId = 0;
   List<NoteCategory> _categories = [];
-
-  List<NoteCategory> get _defaultCategories => defaultCategories
-      .asMap()
-      .map(
-        (index, c) => MapEntry(
-          index,
-          NoteCategory(
-            id: index,
-            name: c['name'] as String,
-            icon: c['icon'] as IconData,
-            color: c['color'] as Color,
-          ),
-        ),
-      )
-      .values
-      .toList();
+  Completer<List<CategoryModel>>? _categoryCompleter;
 
   NoteCategory get _currentCategory => _categories.firstWhere(
     (c) => c.id == _selectedCategoryId,
-    orElse: () =>
-        _categories.isNotEmpty ? _categories.first : _defaultCategories.first,
+    orElse: () => _categories.isNotEmpty
+        ? _categories.first
+        : NoteCategory(
+            id: 0,
+            name: 'Личное',
+            icon: Icons.person,
+            color: const Color(0xFF007AFF),
+          ),
   );
 
   @override
@@ -70,36 +62,33 @@ class _CreateNotePageState extends State<CreateNotePage> {
   }
 
   void _processCategories(List<CategoryModel> savedCategories) {
-    final defaults = Map.fromEntries(
-      _defaultCategories.map((c) => MapEntry(c.name, c)),
-    );
-
     final List<NoteCategory> result = [];
-    final usedIds = <int>{};
 
     for (final cat in savedCategories) {
-      if (defaults.containsKey(cat.name)) {
-        final noteCat = defaults[cat.name]!;
-        result.add(noteCat);
-        usedIds.add(noteCat.id);
-        defaults.remove(cat.name);
-      } else {
-        result.add(
-          NoteCategory(
-            id: cat.id,
-            name: cat.name,
-            icon: Icons.folder,
-            color: const Color(0xFFAF52DE),
-          ),
-        );
-        usedIds.add(cat.id);
-      }
+      result.add(
+        NoteCategory(
+          id: cat.id,
+          name: cat.name,
+          icon: Icons.folder,
+          color: const Color(0xFFAF52DE),
+        ),
+      );
     }
 
-    for (final cat in defaults.values) {
-      if (!usedIds.contains(cat.id)) {
-        result.add(cat);
-      }
+    // Если _selectedCategoryId не совпадает ни с одной категорией
+    // (например, был временный timestamp ID от нижнего листа),
+    // находим реальный ID по имени
+    final hasMatch = result.any((c) => c.id == _selectedCategoryId);
+    if (!hasMatch && _categories.isNotEmpty) {
+      final oldCat = _categories.firstWhere(
+        (c) => c.id == _selectedCategoryId,
+        orElse: () => _categories.first,
+      );
+      final realCat = result.firstWhere(
+        (c) => c.name == oldCat.name,
+        orElse: () => result.first,
+      );
+      _selectedCategoryId = realCat.id;
     }
 
     setState(() => _categories = result);
@@ -119,6 +108,9 @@ class _CreateNotePageState extends State<CreateNotePage> {
       listener: (context, state) {
         if (state is CategoriesLoaded) {
           _processCategories(state.categories);
+          if (_categoryCompleter != null && !_categoryCompleter!.isCompleted) {
+            _categoryCompleter!.complete(state.categories);
+          }
         }
       },
       child: Scaffold(
@@ -160,10 +152,28 @@ class _CreateNotePageState extends State<CreateNotePage> {
       return;
     }
 
+    int categoryId = _selectedCategoryId;
+
     if (_categoryNameController.text.isNotEmpty) {
       final categoryName = _categoryNameController.text.trim();
+
+      _categoryCompleter = Completer<List<CategoryModel>>();
       context.read<NotesBloc>().add(CreateCategory(categoryName));
       _categoryNameController.clear();
+
+      final categories = await _categoryCompleter!.future.timeout(
+        const Duration(seconds: 1),
+        onTimeout: () => [],
+      );
+      _categoryCompleter = null;
+
+      final newCat = categories.firstWhere(
+        (c) => c.name == categoryName,
+        orElse: () => categories.isNotEmpty
+            ? categories.last
+            : CategoryModel(id: 0, name: categoryName),
+      );
+      categoryId = newCat.id;
     }
 
     final note = Notes(
@@ -172,6 +182,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
       description: content,
       date: _selectedDate,
       category: _currentCategory.name,
+      categoryId: categoryId.toString(),
     );
 
     if (!mounted) return;

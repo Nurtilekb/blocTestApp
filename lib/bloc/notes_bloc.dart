@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bloctestapp/models/note.dart';
+import 'package:bloctestapp/models/notes_model.dart';
 import 'package:bloctestapp/models/category_model.dart';
 import 'package:equatable/equatable.dart';
 
@@ -14,6 +14,7 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
   final Set<String> _usedCategories = {'Личное', 'Работа', 'Идеи', 'Важное'};
   NotesBloc(this.repository) : super(NotesLoading()) {
     on<LoadNotes>(_onLoadNotes);
+    on<LoadNotesByCategoryId>(_onLoadNotesByCategoryId);
     on<AddNote>(_onAddNote);
     on<DeleteNote>(_onDeleteNote);
     on<UpdateNote>(_onUpdateNote);
@@ -30,6 +31,21 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     }
     try {
       final notes = await repository.getNotes();
+      emit(NotesLoaded(notes: notes));
+    } catch (e) {
+      emit(NotesError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadNotesByCategoryId(
+    LoadNotesByCategoryId event,
+    Emitter<NotesState> emit,
+  ) async {
+    if (state is! NotesLoaded) {
+      emit(NotesLoading());
+    }
+    try {
+      final notes = await repository.getNotesByCategoryId(event.categoryId);
       emit(NotesLoaded(notes: notes));
     } catch (e) {
       emit(NotesError(e.toString()));
@@ -62,8 +78,8 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     final index = notes.indexWhere((note) => note.id == event.noteId);
 
     if (index != -1) {
-      notes[index].category = event.newCategory;
-      repository.updateNote(notes[index]);
+      final updated = notes[index].copyWith(category: event.newCategory);
+      repository.updateNote(updated);
       _usedCategories.add(event.newCategory);
     }
 

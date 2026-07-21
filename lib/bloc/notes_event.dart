@@ -9,6 +9,15 @@ sealed class NotesEvent extends Equatable {
 
 class LoadNotes extends NotesEvent {}
 
+class LoadNotesByCategoryId extends NotesEvent {
+  final String categoryId;
+
+  const LoadNotesByCategoryId(this.categoryId);
+
+  @override
+  List<Object> get props => [categoryId];
+}
+
 class AddNote extends NotesEvent {
   final Notes note;
 

@@ -116,6 +116,7 @@ class _SearchPageState extends State<SearchPage> {
                 dateTime: note.date,
                 categoryText: note.category,
                 detterId: note.id,
+                categoryId: note.categoryId,
               );
             },
             separatorBuilder: (_, _) => const SizedBox(height: 12),

@@ -1,13 +1,10 @@
 class Notes {
   final String id;
-
-  String title;
-
-  String description;
-
-  DateTime date;
-
-  String category;
+  final String title;
+  final String description;
+  final DateTime date;
+  final String category;
+  final String categoryId;
 
   Notes({
     required this.title,
@@ -15,6 +12,7 @@ class Notes {
     required this.category,
     required this.id,
     required this.date,
+    required this.categoryId,
   });
 
   Notes copyWith({
@@ -23,6 +21,7 @@ class Notes {
     String? description,
     String? category,
     DateTime? date,
+    String? categoryId,
   }) {
     return Notes(
       id: id ?? this.id,
@@ -30,6 +29,7 @@ class Notes {
       description: description ?? this.description,
       category: category ?? this.category,
       date: date ?? this.date,
+      categoryId: categoryId ?? this.categoryId,
     );
   }
 
@@ -41,6 +41,7 @@ class Notes {
       'description': description,
       'category': category,
       'date': date.toIso8601String(),
+      'categoryId': categoryId,
     };
   }
 
@@ -52,6 +53,7 @@ class Notes {
       description: json['description'],
       category: json['category'],
       date: DateTime.parse(json['date'] as String),
+      categoryId: json['categoryId'],
     );
   }
 }

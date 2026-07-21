@@ -2,6 +2,7 @@ import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/pages/detail/note_detail.dart';
 import 'package:bloctestapp/widgets/show_delete_diolog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NoteCardWidget extends StatefulWidget {
@@ -12,12 +13,14 @@ class NoteCardWidget extends StatefulWidget {
     required this.dateTime,
     required this.categoryText,
     required this.detterId,
+    required this.categoryId,
   });
   final String mainText;
   final String descripText;
   final DateTime dateTime;
   final String categoryText;
   final String detterId;
+  final String categoryId;
   @override
   State<NoteCardWidget> createState() => _CardsInPageState();
 }
@@ -39,6 +42,7 @@ class _CardsInPageState extends State<NoteCardWidget> {
                 categoryColor: Colors.blueAccent,
                 dateTime: widget.dateTime,
                 idGeter: widget.detterId,
+                categoryId: widget.categoryId,
               ),
             ),
           );
@@ -109,33 +113,40 @@ class _CardsInPageState extends State<NoteCardWidget> {
                     ),
                   ),
                   Spacer(),
-                  Container(
-                    height: 30,
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 0.6, color: Colors.transparent),
-                      color: const Color.fromARGB(115, 187, 222, 251),
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 16,
-                          offset: const Offset(0, 2),
+                  Expanded(
+                    child: Container(
+                      height: 30,
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 0.6,
+                          color: Colors.transparent,
                         ),
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        widget.categoryText,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: const Color.fromARGB(255, 69, 100, 240),
-                          fontWeight: FontWeight(500),
+                        color: const Color.fromARGB(115, 187, 222, 251),
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 16,
+                            offset: const Offset(0, 2),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          overflow: TextOverflow.ellipsis,
+
+                          widget.categoryText,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: const Color.fromARGB(255, 69, 100, 240),
+                            fontWeight: FontWeight(500),
+                          ),
                         ),
                       ),
                     ),

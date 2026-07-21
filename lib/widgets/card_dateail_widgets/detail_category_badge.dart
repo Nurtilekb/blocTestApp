@@ -1,5 +1,5 @@
 import 'package:bloctestapp/pages/create/create_note_page.dart';
-import 'package:bloctestapp/widgets/card_dateail_widgets/category_sheet.dart';
+import 'package:bloctestapp/widgets/card_dateail_widgets/category/category_sheet.dart';
 import 'package:flutter/material.dart';
 
 class DetailCategoryBadge extends StatelessWidget {
@@ -57,7 +57,7 @@ class DetailCategoryBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 3),
         decoration: BoxDecoration(
-          color: categoryColor.withValues(alpha: 0.1),
+          color: const Color.fromARGB(33, 33, 149, 243),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: categoryColor.withValues(alpha: 0.3),
@@ -69,12 +69,17 @@ class DetailCategoryBadge extends StatelessWidget {
           children: [
             Icon(Icons.folder_outlined, size: 14, color: categoryColor),
             const SizedBox(width: 6),
-            Text(
-              category,
-              style: TextStyle(
-                fontSize: 14,
-                color: categoryColor,
-                fontWeight: FontWeight.w600,
+            SizedBox(
+              width: 70,
+              child: Text(
+                category,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: categoryColor,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             Icon(Icons.arrow_drop_down, color: categoryColor),

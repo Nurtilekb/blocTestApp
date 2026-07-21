@@ -8,9 +8,8 @@ import 'package:bloctestapp/widgets/card_dateail_widgets/detail_content_field.da
 import 'package:bloctestapp/widgets/card_dateail_widgets/detail_category_badge.dart';
 import 'package:bloctestapp/widgets/card_dateail_widgets/detail_edit_buttons.dart';
 import 'package:bloctestapp/bloc/notes_bloc.dart';
-import 'package:bloctestapp/models/note.dart';
+import 'package:bloctestapp/models/notes_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bloctestapp/constants/app_constants.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final String title;
@@ -19,6 +18,7 @@ class NoteDetailPage extends StatefulWidget {
   final Color categoryColor;
   final String idGeter;
   final DateTime dateTime;
+  final String categoryId;
 
   const NoteDetailPage({
     super.key,
@@ -28,6 +28,7 @@ class NoteDetailPage extends StatefulWidget {
     required this.categoryColor,
     required this.dateTime,
     required this.idGeter,
+    required this.categoryId,
   });
 
   @override
@@ -37,32 +38,18 @@ class NoteDetailPage extends StatefulWidget {
 class _NoteDetailPageState extends State<NoteDetailPage> {
   bool isEditing = false;
   String _selectedCategory = '';
+  int _selectedCategoryId = 0;
   List<NoteCategory> _allCategories = [];
 
   late final TextEditingController _titleController;
   late final TextEditingController _contentController;
   final _categoryNameController = TextEditingController();
 
-  List<NoteCategory> get _defaultCategories => defaultCategories
-      .asMap()
-      .map(
-        (index, c) => MapEntry(
-          index,
-          NoteCategory(
-            id: index,
-            name: c['name'] as String,
-            icon: c['icon'] as IconData,
-            color: c['color'] as Color,
-          ),
-        ),
-      )
-      .values
-      .toList();
-
   @override
   void initState() {
     super.initState();
     _selectedCategory = widget.category;
+    _selectedCategoryId = int.tryParse(widget.categoryId) ?? 0;
     _titleController = TextEditingController(text: widget.title);
     _contentController = TextEditingController(text: widget.content);
     _loadCategories();
@@ -73,36 +60,32 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _processCategories(List<CategoryModel> savedCategories) {
-    final defaults = Map.fromEntries(
-      _defaultCategories.map((c) => MapEntry(c.name, c)),
-    );
-
     final List<NoteCategory> result = [];
-    final usedIds = <int>{};
 
     for (final cat in savedCategories) {
-      if (defaults.containsKey(cat.name)) {
-        final noteCat = defaults[cat.name]!;
-        result.add(noteCat);
-        usedIds.add(noteCat.id);
-        defaults.remove(cat.name);
-      } else {
-        result.add(
-          NoteCategory(
-            id: cat.id,
-            name: cat.name,
-            icon: Icons.folder,
-            color: const Color(0xFFAF52DE),
-          ),
-        );
-        usedIds.add(cat.id);
-      }
+      result.add(
+        NoteCategory(
+          id: cat.id,
+          name: cat.name,
+          icon: Icons.folder,
+          color: const Color(0xFFAF52DE),
+        ),
+      );
     }
 
-    for (final cat in defaults.values) {
-      if (!usedIds.contains(cat.id)) {
-        result.add(cat);
-      }
+    // Если _selectedCategoryId не совпадает с реальным — находим по имени
+    final hasMatch = result.any((c) => c.id == _selectedCategoryId);
+    if (!hasMatch && _allCategories.isNotEmpty) {
+      final oldCat = _allCategories.firstWhere(
+        (c) => c.id == _selectedCategoryId,
+        orElse: () => _allCategories.first,
+      );
+      final realCat = result.firstWhere(
+        (c) => c.name == oldCat.name,
+        orElse: () => result.isNotEmpty ? result.first : oldCat,
+      );
+      _selectedCategoryId = realCat.id;
+      _selectedCategory = realCat.name;
     }
 
     setState(() => _allCategories = result);
@@ -120,7 +103,21 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   }
 
   void _onCategoryChanged(String newCategory) {
-    setState(() => _selectedCategory = newCategory);
+    final match = _allCategories.firstWhere(
+      (c) => c.name == newCategory,
+      orElse: () => _allCategories.isNotEmpty
+          ? _allCategories.first
+          : NoteCategory(
+              id: 0,
+              name: newCategory,
+              icon: Icons.folder,
+              color: const Color(0xFFAF52DE),
+            ),
+    );
+    setState(() {
+      _selectedCategory = newCategory;
+      _selectedCategoryId = match.id;
+    });
   }
 
   Color get _currentCategoryColor {
@@ -143,6 +140,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     setState(() {
       _allCategories.add(newCategory);
       _selectedCategory = newCategory.name;
+      _selectedCategoryId = newCategory.id;
     });
   }
 
@@ -155,8 +153,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       _allCategories.removeAt(idx);
       if (_allCategories.isEmpty) {
         _selectedCategory = '';
+        _selectedCategoryId = -1;
       } else if (_selectedCategory == deletedName) {
         _selectedCategory = _allCategories.first.name;
+        _selectedCategoryId = _allCategories.first.id;
       }
     });
 
@@ -194,6 +194,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         description: _contentController.text,
         category: _selectedCategory,
         date: DateTime.now(),
+        categoryId: _selectedCategoryId.toString(),
       );
 
       context.read<NotesBloc>().add(UpdateNote(updatedNote));
@@ -215,6 +216,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     _titleController.text = widget.title;
     _contentController.text = widget.content;
     _selectedCategory = widget.category;
+    _selectedCategoryId = int.tryParse(widget.categoryId) ?? 0;
     setState(() {
       isEditing = false;
     });

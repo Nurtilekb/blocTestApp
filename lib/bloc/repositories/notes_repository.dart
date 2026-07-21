@@ -1,12 +1,14 @@
 import 'package:bloctestapp/models/category_model.dart';
-import 'package:bloctestapp/services/firestrore_service.dart';
+import 'package:bloctestapp/services/category_service.dart';
+import 'package:bloctestapp/services/notes_service.dart';
 
-import '../../models/note.dart';
+import '../../models/notes_model.dart';
 
 class NotesRepository {
-  final FirestoreService manager;
+  final NotesService manager;
+  final CategoryService manager2;
 
-  NotesRepository(this.manager);
+  NotesRepository(this.manager, this.manager2);
 
   Future<List<Notes>> getNotes() async {
     return await manager.getAllNotes();
@@ -24,31 +26,38 @@ class NotesRepository {
     await manager.updateNote(note);
   }
 
-  Future<List<CategoryModel>> getCategories() async {
-    return await manager.getAllCategories();
-  }
-
-  Future<CategoryModel> createCategory(String name) async {
-    return await manager.createCategory(name);
-  }
-
-  Future<void> deleteCategory(int id) async {
-    await manager.deleteCategory(id);
-  }
-
-  Future<void> updateCategory(int id, String newName) async {
-    await manager.updateCategory(id, newName);
-  }
-
-  Future<CategoryModel?> getCategoryById(int id) async {
-    return await manager.getCategoryById(id);
-  }
-
   Future<void> updateNoteCategory(String noteId, int newCategoryId) async {
     await manager.updateNoteCategory(noteId, newCategoryId);
   }
 
   Future<List<Notes>> searchNotes(String query) async {
     return await manager.searchNotes(query);
+  }
+
+  Future<List<Notes>> getNotesByCategoryId(String categoryId) async {
+    return await manager.getNotesByCategoryId(categoryId);
+  }
+
+  /// /////////////////////////////////////////////////////////////////////////////////////////////////
+  /// For Category
+
+  Future<List<CategoryModel>> getCategories() async {
+    return await manager2.getAllCategories();
+  }
+
+  Future<CategoryModel> createCategory(String name) async {
+    return await manager2.createCategory(name);
+  }
+
+  Future<void> deleteCategory(int id) async {
+    await manager2.deleteCategory(id);
+  }
+
+  Future<void> updateCategory(int id, String newName) async {
+    await manager2.updateCategory(id, newName);
+  }
+
+  Future<CategoryModel?> getCategoryById(int id) async {
+    return await manager2.getCategoryById(id);
   }
 }
