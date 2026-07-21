@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:bloc/bloc.dart';
 import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloctestapp/models/notes_model.dart';
 import 'package:bloctestapp/models/category_model.dart';
 import 'package:equatable/equatable.dart';
@@ -9,31 +9,38 @@ import 'package:equatable/equatable.dart';
 part 'notes_event.dart';
 part 'notes_state.dart';
 
+/// BLoC для управления заметками и категориями
+/// Исправлено:
+/// - Добавлена обработка ошибок во все handler'ы
+/// - Убран хардкод категорий (_usedCategories)
+/// - Убрана гонка состояний при создании категории
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
   final NotesRepository repository;
-  final Set<String> _usedCategories = {'Личное', 'Работа', 'Идеи', 'Важное'};
-  NotesBloc(this.repository) : super(NotesLoading()) {
+
+  NotesBloc(this.repository) : super(const NotesLoading()) {
     on<LoadNotes>(_onLoadNotes);
     on<LoadNotesByCategoryId>(_onLoadNotesByCategoryId);
     on<AddNote>(_onAddNote);
     on<DeleteNote>(_onDeleteNote);
     on<UpdateNote>(_onUpdateNote);
-
     on<UpdateNoteCategory>(_onUpdateNoteCategory);
     on<LoadCategories>(_onLoadCategories);
     on<CreateCategory>(_onCreateCategory);
     on<DeleteCategory>(_onDeleteCategory);
     on<UpdateCategory>(_onUpdateCategory);
   }
-  Future<void> _onLoadNotes(LoadNotes event, Emitter<NotesState> emit) async {
-    if (state is! NotesLoaded) {
-      emit(NotesLoading());
-    }
+
+  Future<void> _onLoadNotes(
+    LoadNotes event,
+    Emitter<NotesState> emit,
+  ) async {
+    emit(const NotesLoading());
     try {
       final notes = await repository.getNotes();
-      emit(NotesLoaded(notes: notes));
+      final categories = await repository.getCategories();
+      emit(NotesLoaded(notes: notes, categories: categories));
     } catch (e) {
-      emit(NotesError(e.toString()));
+      emit(NotesError('Ошибка загрузки заметок: ${e.toString()}'));
     }
   }
 
@@ -41,88 +48,130 @@ class NotesBloc extends Bloc<NotesEvent, NotesState> {
     LoadNotesByCategoryId event,
     Emitter<NotesState> emit,
   ) async {
-    if (state is! NotesLoaded) {
-      emit(NotesLoading());
-    }
+    emit(const NotesLoading());
     try {
       final notes = await repository.getNotesByCategoryId(event.categoryId);
-      emit(NotesLoaded(notes: notes));
+      final categories = await repository.getCategories();
+      emit(NotesLoaded(notes: notes, categories: categories));
     } catch (e) {
-      emit(NotesError(e.toString()));
+      emit(NotesError('Ошибка фильтрации по категории: ${e.toString()}'));
     }
   }
 
-  Future<void> _onDeleteNote(DeleteNote event, Emitter<NotesState> emit) async {
-    await repository.deleteNote(event.id);
-    final notes = await repository.getNotes();
-    emit(NotesLoaded(notes: notes));
+  Future<void> _onDeleteNote(
+    DeleteNote event,
+    Emitter<NotesState> emit,
+  ) async {
+    try {
+      await repository.deleteNote(event.id);
+      final notes = await repository.getNotes();
+      final categories = await repository.getCategories();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка удаления заметки: ${e.toString()}'));
+    }
   }
 
-  Future<void> _onAddNote(AddNote event, Emitter<NotesState> emit) async {
-    await repository.createNote(event.note);
-    final notes = await repository.getNotes();
-    emit(NotesLoaded(notes: notes));
+  Future<void> _onAddNote(
+    AddNote event,
+    Emitter<NotesState> emit,
+  ) async {
+    try {
+      await repository.createNote(event.note);
+      final notes = await repository.getNotes();
+      final categories = await repository.getCategories();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка создания заметки: ${e.toString()}'));
+    }
   }
 
-  Future<void> _onUpdateNote(UpdateNote event, Emitter<NotesState> emit) async {
-    await repository.updateNote(event.note);
-    final notes = await repository.getNotes();
-    emit(NotesLoaded(notes: notes));
+  Future<void> _onUpdateNote(
+    UpdateNote event,
+    Emitter<NotesState> emit,
+  ) async {
+    try {
+      await repository.updateNote(event.note);
+      final notes = await repository.getNotes();
+      final categories = await repository.getCategories();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка обновления заметки: ${e.toString()}'));
+    }
   }
 
   Future<void> _onUpdateNoteCategory(
     UpdateNoteCategory event,
     Emitter<NotesState> emit,
   ) async {
-    final notes = await repository.getNotes();
-    final index = notes.indexWhere((note) => note.id == event.noteId);
-
-    if (index != -1) {
-      final updated = notes[index].copyWith(category: event.newCategory);
-      repository.updateNote(updated);
-      _usedCategories.add(event.newCategory);
+    try {
+      await repository.updateNoteCategory(event.noteId, event.newCategoryId);
+      final notes = await repository.getNotes();
+      final categories = await repository.getCategories();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка обновления категории: ${e.toString()}'));
     }
-
-    emit(
-      NotesLoaded(
-        notes: await repository.getNotes(),
-        allCategories: _usedCategories.toList(),
-      ),
-    );
   }
 
   Future<void> _onCreateCategory(
     CreateCategory event,
     Emitter<NotesState> emit,
   ) async {
-    await repository.createCategory(event.name);
-    final categories = await repository.getCategories();
-    emit(CategoriesLoaded(categories: categories));
+    emit(const NotesLoading());
+    try {
+      await repository.createCategory(event.name);
+      final categories = await repository.getCategories();
+      final notes = await repository.getNotes();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка создания категории: ${e.toString()}'));
+    }
   }
 
   Future<void> _onDeleteCategory(
     DeleteCategory event,
     Emitter<NotesState> emit,
   ) async {
-    await repository.deleteCategory(event.id);
-    final categories = await repository.getCategories();
-    emit(CategoriesLoaded(categories: categories));
+    try {
+      await repository.deleteCategory(event.id);
+      final categories = await repository.getCategories();
+      final notes = await repository.getNotes();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка удаления категории: ${e.toString()}'));
+    }
   }
 
   Future<void> _onUpdateCategory(
     UpdateCategory event,
     Emitter<NotesState> emit,
   ) async {
-    await repository.updateCategory(event.id, event.newName);
-    final categories = await repository.getCategories();
-    emit(CategoriesLoaded(categories: categories));
+    try {
+      await repository.updateCategory(event.id, event.newName);
+      final categories = await repository.getCategories();
+      final notes = await repository.getNotes();
+      emit(NotesLoaded(notes: notes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка обновления категории: ${e.toString()}'));
+    }
   }
 
   Future<void> _onLoadCategories(
     LoadCategories event,
     Emitter<NotesState> emit,
   ) async {
-    final categories = await repository.getCategories();
-    emit(CategoriesLoaded(categories: categories));
+    try {
+      final categories = await repository.getCategories();
+      // Сохраняем текущее состояние заметок если оно есть
+      final currentState = state;
+      List<Notes> currentNotes = const [];
+      if (currentState is NotesLoaded) {
+        currentNotes = currentState.notes;
+      }
+      emit(NotesLoaded(notes: currentNotes, categories: categories));
+    } catch (e) {
+      emit(NotesError('Ошибка загрузки категорий: ${e.toString()}'));
+    }
   }
 }
