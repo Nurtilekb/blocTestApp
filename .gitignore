@@ -1,129 +1,38 @@
-# ===== Python =====
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+```
+# Build artifacts
+/build/
+/dist/
+*.apk
+*.aab
+*.app
 
-# ===== Python dependencies =====
+# Dependencies
+/pubspec.lock
+/.packages
+.dart_tool/
 .venv/
 venv/
-.mypy_cache/
-.pytest_cache/
-coverage/
-htmlcov/
-.coverage
-
-# ===== Node.js =====
 node_modules/
-dist/
-build/
-target/
 
-# ===== Java/Gradle =====
-.gradle/
-*.class
-*.jar
+# IDE files
+/.vscode/
+/.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
 
-# ===== Dart/Flutter =====
-.pub/
-.dart_tool/
-build/
-*.lock
-pubspec.lock
-package_config.json
-.dart_tool/
-.pub-cache/
+# OS files
+.DS_Store
+Thumbs.db
 
-# ===== Flutter specific =====
-lib/generated_plugin_registrant.dart
-lib/firebase_options.dart
-android/app/google-services.json
-android/local.properties
-android/*.iml
-android/.gradle/
-android/.idea/
-ios/Pods/
-ios/Podfile.lock
-ios/*.xcworkspace
-ios/Flutter/App.framework
-ios/Flutter/Flutter.framework
-ios/Flutter/Generated.xcconfig
-ios/Flutter/flutter_export_environment.sh
-ios/Runner/GeneratedPluginRegistrant.*
-ios/Runner/GoogleService-Info.plist
-ios/.symlinks/
-web/
-windows/
-linux/
-macos/
-*.generated.dart
-
-# ===== Logs and temp files =====
+# Logs
 *.log
 *.tmp
-*.bak
-*.swp
-*.swo
-*.pid
-*.seed
-*.pid.lock
 
-# ===== Environment variables =====
+# Environment
 .env
 .env.local
-.env.*.local
-*.env
-
-# ===== Firebase =====
-google-services.json
-GoogleService-Info.plist
-firebase_options.dart
-*.p12
-*.pem
-*.key
-*.crt
-
-# ===== IDE =====
-.vscode/
-.idea/
-*.iml
-*.iws
-*.ipr
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-
-# ===== System files =====
-.DS_Store
-Thumbs.db
-desktop.ini
-ehthumbs.db
-*.db
-
-# ===== Deployment =====
-*.zip
-*.tar.gz
-*.rar
-*.7z
-*.apk
-*.ipa
-*.dmg
-*.pkg
-*.deb
-*.rpm
-
-# ===== Temporary files =====
-*.tmp
-*.temp
-*.cache
-*.sass-cache/
-*.scssc
-*.sublime-*
+*.env.*
+```

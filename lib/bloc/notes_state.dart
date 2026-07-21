@@ -1,10 +1,12 @@
 part of 'notes_bloc.dart';
 
+/// Состояния BLoC с поддержкой категорий из Firestore
+/// Исправлено: убран хардкод категорий, используется List<CategoryModel>
 sealed class NotesState extends Equatable {
   const NotesState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 final class NotesLoading extends NotesState {
@@ -13,29 +15,15 @@ final class NotesLoading extends NotesState {
 
 class NotesLoaded extends NotesState {
   final List<Notes> notes;
-  final List<String> allCategories;
+  final List<CategoryModel> categories; // Исправлено: CategoryModel вместо List<String>
 
   const NotesLoaded({
     required this.notes,
-    this.allCategories = const [
-      'Личное',
-      'Работа',
-      'Идеи',
-      'Важное',
-    ],
+    required this.categories,
   });
 
   @override
-  List<Object> get props => [notes, allCategories];
-}
-
-class CategoriesLoaded extends NotesState {
-  final List<CategoryModel> categories;
-
-  const CategoriesLoaded({required this.categories});
-
-  @override
-  List<Object> get props => [categories];
+  List<Object?> get props => [notes, categories];
 }
 
 final class NotesError extends NotesState {
@@ -44,5 +32,5 @@ final class NotesError extends NotesState {
   const NotesError(this.message);
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message];
 }

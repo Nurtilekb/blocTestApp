@@ -1,10 +1,12 @@
 part of 'notes_bloc.dart';
 
+/// События BLoC с исправленными типами
+/// Исправлено: categoryId теперь String (вместо int) для согласованности
 sealed class NotesEvent extends Equatable {
   const NotesEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadNotes extends NotesEvent {}
@@ -15,35 +17,47 @@ class LoadNotesByCategoryId extends NotesEvent {
   const LoadNotesByCategoryId(this.categoryId);
 
   @override
-  List<Object> get props => [categoryId];
+  List<Object?> get props => [categoryId];
 }
 
 class AddNote extends NotesEvent {
   final Notes note;
 
   const AddNote(this.note);
+
+  @override
+  List<Object?> get props => [note];
 }
 
 class DeleteNote extends NotesEvent {
   final String id;
 
   const DeleteNote(this.id);
+
+  @override
+  List<Object?> get props => [id];
 }
 
 class UpdateNoteCategory extends NotesEvent {
   final String noteId;
-  final String newCategory;
+  final String newCategoryId; // Исправлено: String вместо newCategory
 
-  const UpdateNoteCategory({required this.noteId, required this.newCategory});
+  const UpdateNoteCategory({
+    required this.noteId,
+    required this.newCategoryId,
+  });
 
   @override
-  List<Object> get props => [noteId, newCategory];
+  List<Object?> get props => [noteId, newCategoryId];
 }
 
 class UpdateNote extends NotesEvent {
   final Notes note;
 
   const UpdateNote(this.note);
+
+  @override
+  List<Object?> get props => [note];
 }
 
 class LoadCategories extends NotesEvent {}
@@ -54,24 +68,27 @@ class CreateCategory extends NotesEvent {
   const CreateCategory(this.name);
 
   @override
-  List<Object> get props => [name];
+  List<Object?> get props => [name];
 }
 
 class DeleteCategory extends NotesEvent {
-  final int id;
+  final String id; // Исправлено: String вместо int
 
   const DeleteCategory(this.id);
 
   @override
-  List<Object> get props => [id];
+  List<Object?> get props => [id];
 }
 
 class UpdateCategory extends NotesEvent {
-  final int id;
+  final String id; // Исправлено: String вместо int
   final String newName;
 
-  const UpdateCategory({required this.id, required this.newName});
+  const UpdateCategory({
+    required this.id,
+    required this.newName,
+  });
 
   @override
-  List<Object> get props => [id, newName];
+  List<Object?> get props => [id, newName];
 }

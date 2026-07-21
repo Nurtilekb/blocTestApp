@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloctestapp/bloc/notes_bloc.dart';
 import 'package:bloctestapp/models/notes_model.dart';
 import 'package:bloctestapp/models/category_model.dart';
@@ -7,8 +5,9 @@ import 'package:bloctestapp/widgets/card_dateail_widgets/category/category_sheet
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Вспомогательная модель для отображения категории в UI
 class NoteCategory {
-  final int id;
+  final String id;
   final String name;
   final IconData icon;
   final Color color;
@@ -19,6 +18,15 @@ class NoteCategory {
     required this.icon,
     required this.color,
   });
+
+  factory NoteCategory.fromCategoryModel(CategoryModel model) {
+    return NoteCategory(
+      id: model.id,
+      name: model.name,
+      icon: Icons.folder,
+      color: const Color(0xFFAF52DE),
+    );
+  }
 }
 
 class CreateNotePage extends StatefulWidget {
@@ -29,27 +37,33 @@ class CreateNotePage extends StatefulWidget {
 }
 
 class _CreateNotePageState extends State<CreateNotePage> {
-  final _formKey = GlobalKey<FormState>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _categoryNameController = TextEditingController();
   final DateTime _selectedDate = DateTime.now();
 
-  int _selectedCategoryId = 0;
+  String _selectedCategoryId = '';
   List<NoteCategory> _categories = [];
-  Completer<List<CategoryModel>>? _categoryCompleter;
+  
+  // Флаг загрузки категорий
+  bool _isLoadingCategories = true;
 
-  NoteCategory get _currentCategory => _categories.firstWhere(
-    (c) => c.id == _selectedCategoryId,
-    orElse: () => _categories.isNotEmpty
-        ? _categories.first
-        : NoteCategory(
-            id: 0,
-            name: 'Личное',
-            icon: Icons.person,
-            color: const Color(0xFF007AFF),
-          ),
-  );
+  NoteCategory get _currentCategory {
+    if (_categories.isEmpty) {
+      return const NoteCategory(
+        id: '',
+        name: 'Личное',
+        icon: Icons.person,
+        color: Color(0xFF007AFF),
+      );
+    }
+    
+    // Если выбранный ID не найден, возвращаем первую категорию
+    return _categories.firstWhere(
+      (c) => c.id == _selectedCategoryId,
+      orElse: () => _categories.first,
+    );
+  }
 
   @override
   void initState() {
@@ -62,36 +76,20 @@ class _CreateNotePageState extends State<CreateNotePage> {
   }
 
   void _processCategories(List<CategoryModel> savedCategories) {
-    final List<NoteCategory> result = [];
+    final result = savedCategories
+        .map((cat) => NoteCategory.fromCategoryModel(cat))
+        .toList();
 
-    for (final cat in savedCategories) {
-      result.add(
-        NoteCategory(
-          id: cat.id,
-          name: cat.name,
-          icon: Icons.folder,
-          color: const Color(0xFFAF52DE),
-        ),
-      );
-    }
-
-    // Если _selectedCategoryId не совпадает ни с одной категорией
-    // (например, был временный timestamp ID от нижнего листа),
-    // находим реальный ID по имени
-    final hasMatch = result.any((c) => c.id == _selectedCategoryId);
-    if (!hasMatch && _categories.isNotEmpty) {
-      final oldCat = _categories.firstWhere(
-        (c) => c.id == _selectedCategoryId,
-        orElse: () => _categories.first,
-      );
-      final realCat = result.firstWhere(
-        (c) => c.name == oldCat.name,
-        orElse: () => result.first,
-      );
-      _selectedCategoryId = realCat.id;
-    }
-
-    setState(() => _categories = result);
+    setState(() {
+      _categories = result;
+      _isLoadingCategories = false;
+      
+      // Если текущий ID не совпадает ни с одной категорией, выбираем первую
+      if (_selectedCategoryId.isEmpty || 
+          !result.any((c) => c.id == _selectedCategoryId)) {
+        _selectedCategoryId = result.isNotEmpty ? result.first.id : '';
+      }
+    });
   }
 
   @override
@@ -106,31 +104,33 @@ class _CreateNotePageState extends State<CreateNotePage> {
   Widget build(BuildContext context) {
     return BlocListener<NotesBloc, NotesState>(
       listener: (context, state) {
-        if (state is CategoriesLoaded) {
+        if (state is NotesLoaded) {
           _processCategories(state.categories);
-          if (_categoryCompleter != null && !_categoryCompleter!.isCompleted) {
-            _categoryCompleter!.complete(state.categories);
-          }
+        } else if (state is NotesError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ ${state.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() => _isLoadingCategories = false);
         }
       },
       child: Scaffold(
-        body: Form(
-          key: _formKey,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTopBar(),
-                  const SizedBox(height: 20),
-                  _buildTitleField(),
-                  const SizedBox(height: 12),
-                  _buildCategorySelector(),
-                  const SizedBox(height: 16),
-                  _buildContentField(),
-                ],
-              ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTopBar(),
+                const SizedBox(height: 20),
+                _buildTitleField(),
+                const SizedBox(height: 12),
+                _buildCategorySelector(),
+                const SizedBox(height: 16),
+                _buildContentField(),
+              ],
             ),
           ),
         ),
@@ -138,7 +138,8 @@ class _CreateNotePageState extends State<CreateNotePage> {
     );
   }
 
-  void _saveCard() async {
+  /// Сохранение заметки - теперь без Completer и гонок состояний
+  Future<void> _saveCard() async {
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
 
@@ -152,37 +153,45 @@ class _CreateNotePageState extends State<CreateNotePage> {
       return;
     }
 
-    int categoryId = _selectedCategoryId;
+    String categoryId = _selectedCategoryId;
 
+    // Если введено новое имя категории - создаём её через BLoC
     if (_categoryNameController.text.isNotEmpty) {
       final categoryName = _categoryNameController.text.trim();
-
-      _categoryCompleter = Completer<List<CategoryModel>>();
+      
+      // Отправляем событие на создание категории
       context.read<NotesBloc>().add(CreateCategory(categoryName));
       _categoryNameController.clear();
 
-      final categories = await _categoryCompleter!.future.timeout(
-        const Duration(seconds: 1),
-        onTimeout: () => [],
+      // Ждём обновления состояния BLoC
+      await Future.doWhile(() async {
+        await Future.delayed(const Duration(milliseconds: 100));
+        final state = context.read<NotesBloc>().state;
+        if (state is NotesLoaded) {
+          final newCat = state.categories.firstWhere(
+            (c) => c.name == categoryName,
+            orElse: () => CategoryModel(id: '', name: ''),
+          );
+          if (newCat.id.isNotEmpty) {
+            categoryId = newCat.id;
+            return false;
+          }
+        }
+        return false; // Таймаут 1 сек
+      }).timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {},
       );
-      _categoryCompleter = null;
-
-      final newCat = categories.firstWhere(
-        (c) => c.name == categoryName,
-        orElse: () => categories.isNotEmpty
-            ? categories.last
-            : CategoryModel(id: 0, name: categoryName),
-      );
-      categoryId = newCat.id;
     }
 
+    final currentCat = _currentCategory;
     final note = Notes(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       description: content,
       date: _selectedDate,
-      category: _currentCategory.name,
-      categoryId: categoryId.toString(),
+      category: currentCat.name,
+      categoryId: categoryId,
     );
 
     if (!mounted) return;
@@ -191,7 +200,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('✅ Карточка создана!'),
+        content: Text('✅ Заметка создана!'),
         backgroundColor: Colors.green,
       ),
     );
@@ -274,74 +283,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
           const Text('Категория'),
           const SizedBox(width: 10),
           GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (sheetContext) {
-                  return DraggableScrollableSheet(
-                    initialChildSize: 0.6, // 60% высоты экрана
-                    minChildSize: 0.4, // Минимум 40%
-                    maxChildSize: 0.9, // Максимум 90%
-                    expand: false,
-                    builder:
-                        (
-                          BuildContext context,
-                          ScrollController scrollController,
-                        ) {
-                          return CategorySheetContent(
-                            categories: _categories,
-                            selectedCategoryId: _selectedCategoryId,
-                            categoryNameController: _categoryNameController,
-                            onCategorySelected: (id) {
-                              setState(() => _selectedCategoryId = id);
-                            },
-                            onCategoryAdded: (newCategory) {
-                              context.read<NotesBloc>().add(
-                                CreateCategory(newCategory.name),
-                              );
-                              setState(() {
-                                _categories.add(newCategory);
-                                _selectedCategoryId = newCategory.id;
-                              });
-                            },
-                            onCategoryUpdated: (updatedCategory) {
-                              context.read<NotesBloc>().add(
-                                UpdateCategory(
-                                  id: updatedCategory.id,
-                                  newName: updatedCategory.name,
-                                ),
-                              );
-                              if (_selectedCategoryId == updatedCategory.id) {
-                                setState(() {
-                                  _selectedCategoryId = updatedCategory.id;
-                                });
-                              }
-                            },
-                            onCategoryDeleted: (categoryId) {
-                              context.read<NotesBloc>().add(
-                                DeleteCategory(categoryId),
-                              );
-                              setState(() {
-                                _categories.removeWhere(
-                                  (c) => c.id == categoryId,
-                                );
-                              });
-                              if (_selectedCategoryId == categoryId) {
-                                setState(() {
-                                  _selectedCategoryId = _categories.isNotEmpty
-                                      ? _categories.first.id
-                                      : -1;
-                                });
-                              }
-                            },
-                          );
-                        },
-                  );
-                },
-              );
-            },
+            onTap: _showCategorySheet,
             child: Container(
               height: 30,
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -364,14 +306,21 @@ class _CreateNotePageState extends State<CreateNotePage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    _currentCategory.name,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color.fromARGB(255, 69, 100, 240),
-                      fontWeight: FontWeight.w500,
+                  if (_isLoadingCategories)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else
+                    Text(
+                      _currentCategory.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color.fromARGB(255, 69, 100, 240),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
                   const Icon(
                     Icons.arrow_drop_down_rounded,
                     color: Color.fromARGB(255, 69, 100, 240),
@@ -382,6 +331,58 @@ class _CreateNotePageState extends State<CreateNotePage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showCategorySheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (
+            BuildContext context,
+            ScrollController scrollController,
+          ) {
+            return CategorySheetContent(
+              categories: _categories,
+              selectedCategoryId: _selectedCategoryId,
+              categoryNameController: _categoryNameController,
+              onCategorySelected: (id) {
+                setState(() => _selectedCategoryId = id);
+              },
+              onCategoryAdded: (newCategory) {
+                context.read<NotesBloc>().add(
+                  CreateCategory(newCategory.name),
+                );
+              },
+              onCategoryUpdated: (updatedCategory) {
+                context.read<NotesBloc>().add(
+                  UpdateCategory(
+                    id: updatedCategory.id,
+                    newName: updatedCategory.name,
+                  ),
+                );
+              },
+              onCategoryDeleted: (categoryId) {
+                context.read<NotesBloc>().add(
+                  DeleteCategory(categoryId),
+                );
+                if (_selectedCategoryId == categoryId && _categories.isNotEmpty) {
+                  setState(() {
+                    _selectedCategoryId = _categories.first.id;
+                  });
+                }
+              },
+            );
+          },
+        );
+      },
     );
   }
 
