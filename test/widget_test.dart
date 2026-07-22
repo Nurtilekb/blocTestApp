@@ -2,14 +2,13 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:bloctestapp/bloc/auth/auth_bloc.dart';
 import 'package:bloctestapp/bloc/auth/auth_event.dart';
 import 'package:bloctestapp/bloc/auth/auth_state.dart';
-import 'package:bloctestapp/pages/authentication/login_paage.dart';
+import 'package:bloctestapp/pages/authentication/sign_in_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthBloc extends MockBloc<AuthEvent, AuthState>
-    implements AuthBloc {}
+class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
 
 void main() {
   late MockAuthBloc authBloc;
@@ -27,7 +26,9 @@ void main() {
     authBloc.close();
   });
 
-  testWidgets('SignInPage renders all UI elements', (WidgetTester tester) async {
+  testWidgets('SignInPage renders all UI elements', (
+    WidgetTester tester,
+  ) async {
     when(() => authBloc.state).thenReturn(const Unauthenticated());
 
     await tester.pumpWidget(
@@ -70,7 +71,10 @@ void main() {
 
     verify(
       () => authBloc.add(
-        const SignInRequested(email: 'test@example.com', password: 'password123'),
+        const SignInRequested(
+          email: 'test@example.com',
+          password: 'password123',
+        ),
       ),
     ).called(1);
   });
