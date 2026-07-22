@@ -12,8 +12,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   late final StreamSubscription<User?> _userSubscription;
 
   AuthBloc({required AuthService authService})
-      : _authService = authService,
-        super(AuthInitial()) {
+    : _authService = authService,
+      super(AuthInitial()) {
     _userSubscription = _authService.authStateChanges.listen((user) {
       add(AuthUserChanged(user));
     });
@@ -35,9 +35,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onSignIn(SignInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await _authService.signIn(event.email, event.password);
-    } on FirebaseAuthException catch (e) {
-      emit(AuthError(_mapAuthError(e.code)));
+      final credential = await _authService.signIn(event.email, event.password);
+      if (credential.user != null) {
+        emit(Authenticated(credential.user!));
+      }
+    } catch (e) {
+      emit(AuthError('Ошибка авторизации: ${e.toString()}'));
     }
   }
 
@@ -45,17 +48,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final credential = await _authService.signUp(event.email, event.password);
-      // После успешной регистрации инициализируем категории для нового пользователя
       if (credential.user != null) {
         await CategoryService().initializeDefaultCategories();
+        emit(Authenticated(credential.user!));
       }
-    } on FirebaseAuthException catch (e) {
-      emit(AuthError(_mapAuthError(e.code)));
+    } catch (e) {
+      emit(AuthError('Ошибка регистрации: ${e.toString()}'));
     }
   }
 
-  Future<void> _onSignOut(SignOutRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onSignOut(
+    SignOutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     await _authService.signOut();
+    emit(Unauthenticated());
   }
 
   String _mapAuthError(String code) {
@@ -64,14 +71,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return 'Пользователь не найден';
       case 'wrong-password':
         return 'Неверный пароль';
+      case 'invalid-credential': // ← добавь это
+        return 'Неверный email или пароль';
       case 'email-already-in-use':
         return 'Email уже используется';
       case 'weak-password':
         return 'Слишком слабый пароль';
       case 'invalid-email':
         return 'Некорректный email';
+      case 'user-disabled':
+        return 'Аккаунт заблокирован';
+      case 'too-many-requests':
+        return 'Слишком много попыток. Попробуйте позже';
+      case 'operation-not-allowed':
+        return 'Email/пароль авторизация не включена в Firebase Console';
       default:
-        return 'Ошибка авторизации';
+        return 'Ошибка авторизации: $code'; // ← покажи код для отладки
     }
   }
 

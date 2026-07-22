@@ -26,6 +26,8 @@ class Unauthenticated extends AuthState {
   const Unauthenticated();
 }
 
+class LoginSuccess extends AuthState {}
+
 class AuthError extends AuthState {
   final String message;
   const AuthError(this.message);
