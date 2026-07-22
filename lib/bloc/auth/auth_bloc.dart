@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloctestapp/bloc/auth/auth_event.dart';
 import 'package:bloctestapp/bloc/auth/auth_state.dart';
 import 'package:bloctestapp/services/auth_service.dart';
+import 'package:bloctestapp/services/category_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,7 +44,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onSignUp(SignUpRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await _authService.signUp(event.email, event.password);
+      final credential = await _authService.signUp(event.email, event.password);
+      // После успешной регистрации инициализируем категории для нового пользователя
+      if (credential.user != null) {
+        await CategoryService().initializeDefaultCategories();
+      }
     } on FirebaseAuthException catch (e) {
       emit(AuthError(_mapAuthError(e.code)));
     }
