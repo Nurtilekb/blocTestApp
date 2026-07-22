@@ -1,3 +1,5 @@
+import 'package:bloctestapp/bloc/auth/auth_bloc.dart';
+import 'package:bloctestapp/bloc/auth/auth_event.dart';
 import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/pages/home_page/with_notes.dart';
 import 'package:bloctestapp/pages/home_page/without_notes.dart';
@@ -25,7 +27,7 @@ class MyHomePage extends StatelessWidget {
               ),
               const Spacer(),
               IconButton.filled(
-                iconSize: 32,
+                iconSize: 25,
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white,
                   side: const BorderSide(color: Colors.black12),
@@ -35,6 +37,73 @@ class MyHomePage extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const SearchPage()),
                 ),
                 icon: const Icon(Icons.search),
+              ),
+              SizedBox(width: 6),
+              IconButton.filled(
+                iconSize: 25,
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.black12),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Text(
+                          'Do u realy want to sign out?',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight(600),
+                          ),
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              elevation: 5,
+
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text('No'),
+                          ),
+                          SizedBox(width: 30),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              elevation: 5,
+
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 30,
+                                vertical: 5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: () {
+                              context.read<AuthBloc>().add(SignOutRequested());
+                              Navigator.pop(context);
+                            },
+                            child: Text('Yes'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.logout, size: 20),
               ),
             ],
           ),
