@@ -94,12 +94,16 @@ class CategoryService {
           CategoryModel(id: '3', name: 'Важное'),
         ];
 
+        final batch = _firestore.batch();
         for (final cat in defaultCategories) {
-          await _categoriesCollection.doc(cat.id).set(cat.toJson());
+          final docRef = _categoriesCollection.doc(cat.id);
+          batch.set(docRef, cat.toJson());
         }
+        await batch.commit();
       }
     } catch (e) {
-      throw Exception('Ошибка при инициализации категорий: $e');
+      // Тихо игнорируем ошибки инициализации, чтобы не блокировать вход
+      print('Ошибка при инициализации категорий: $e');
     }
   }
 }

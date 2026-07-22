@@ -58,7 +58,12 @@ class AuthGate extends StatelessWidget {
       listener: (context, state) async {
         if (state is Authenticated) {
           // Инициализируем категории для пользователя после аутентификации
-          await CategoryService().initializeDefaultCategories();
+          try {
+            await CategoryService().initializeDefaultCategories();
+          } catch (e) {
+            // Игнорируем ошибки инициализации категорий, чтобы не блокировать вход
+            debugPrint('Ошибка инициализации категорий: $e');
+          }
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const MyHomePage()),
