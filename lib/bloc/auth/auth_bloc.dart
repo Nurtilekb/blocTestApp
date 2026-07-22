@@ -37,6 +37,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final credential = await _authService.signIn(event.email, event.password);
       if (credential.user != null) {
+        await CategoryService().initializeDefaultCategories();
         emit(Authenticated(credential.user!));
       }
     } catch (e) {
@@ -63,31 +64,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     await _authService.signOut();
     emit(Unauthenticated());
-  }
-
-  String _mapAuthError(String code) {
-    switch (code) {
-      case 'user-not-found':
-        return 'Пользователь не найден';
-      case 'wrong-password':
-        return 'Неверный пароль';
-      case 'invalid-credential': // ← добавь это
-        return 'Неверный email или пароль';
-      case 'email-already-in-use':
-        return 'Email уже используется';
-      case 'weak-password':
-        return 'Слишком слабый пароль';
-      case 'invalid-email':
-        return 'Некорректный email';
-      case 'user-disabled':
-        return 'Аккаунт заблокирован';
-      case 'too-many-requests':
-        return 'Слишком много попыток. Попробуйте позже';
-      case 'operation-not-allowed':
-        return 'Email/пароль авторизация не включена в Firebase Console';
-      default:
-        return 'Ошибка авторизации: $code'; // ← покажи код для отладки
-    }
   }
 
   @override

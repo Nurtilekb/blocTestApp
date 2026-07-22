@@ -35,7 +35,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
   final TextEditingController _categoryNameController = TextEditingController();
   final DateTime _selectedDate = DateTime.now();
 
-  String _selectedCategoryId = '';
+  String _selectedCategoryId = 'uv-c';
   List<NoteCategory> _categories = [];
   Completer<List<CategoryModel>>? _categoryCompleter;
 
@@ -44,7 +44,7 @@ class _CreateNotePageState extends State<CreateNotePage> {
     orElse: () => _categories.isNotEmpty
         ? _categories.first
         : NoteCategory(
-            id: '',
+            id: 'uv-c',
             name: 'Личное',
             icon: Icons.person,
             color: const Color(0xFF007AFF),

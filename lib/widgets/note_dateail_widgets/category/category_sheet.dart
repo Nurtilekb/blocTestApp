@@ -183,6 +183,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
     );
   }
 
+  /////////////////////////////
   Widget _buildSaveButton() {
     return SizedBox(
       width: double.infinity,
@@ -194,7 +195,7 @@ class _CategorySheetContentState extends State<CategorySheetContent> {
               id: DateTime.now().millisecondsSinceEpoch.toString(),
               name: widget.categoryNameController.text,
               icon: Icons.folder,
-              color: const Color.fromARGB(255, 116, 85, 202),
+              color: const Color.fromARGB(255, 85, 130, 202),
             );
 
             widget.onCategoryAdded(newCategory);

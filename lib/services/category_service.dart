@@ -88,7 +88,7 @@ class CategoryService {
       final snapshot = await _categoriesCollection.get();
       if (snapshot.docs.isEmpty) {
         final defaultCategories = [
-          CategoryModel(id: '0', name: 'Личное'),
+          CategoryModel(id: 'uv-c', name: 'Личное'),
           CategoryModel(id: '1', name: 'Работа'),
           CategoryModel(id: '2', name: 'Идеи'),
           CategoryModel(id: '3', name: 'Важное'),

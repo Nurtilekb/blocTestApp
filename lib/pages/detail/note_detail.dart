@@ -49,7 +49,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   void initState() {
     super.initState();
     _selectedCategory = widget.category;
-    _selectedCategoryId = widget.categoryId;
+    _selectedCategoryId = widget.categoryId.isNotEmpty
+        ? widget.categoryId
+        : 'uv-c';
     _titleController = TextEditingController(text: widget.title);
     _contentController = TextEditingController(text: widget.content);
     _loadCategories();
@@ -154,8 +156,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     setState(() {
       _allCategories.removeAt(idx);
       if (_allCategories.isEmpty) {
-        _selectedCategory = '';
-        _selectedCategoryId = '';
+        _selectedCategory = 'Личное';
+        _selectedCategoryId = 'uv-c';
       } else if (_selectedCategory == deletedName) {
         _selectedCategory = _allCategories.first.name;
         _selectedCategoryId = _allCategories.first.id;
@@ -190,6 +192,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         ),
       );
     } else {
+      // String categoryId1;
+      // if (_selectedCategoryId != '' && _selectedCategoryId.isNotEmpty) {
+      //   categoryId1 = _selectedCategoryId;
+      // } else if (_allCategories.isNotEmpty) {
+      //   categoryId1 = _allCategories.first.id; // Берем первый элемент
+      // } else {
+      //   categoryId1 = '1'; // Если нет категорий, пустая строка
+      // }
       final updatedNote = Notes(
         id: widget.idGeter,
         title: _titleController.text,
@@ -218,7 +228,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     _titleController.text = widget.title;
     _contentController.text = widget.content;
     _selectedCategory = widget.category;
-    _selectedCategoryId = widget.categoryId;
+    _selectedCategoryId = widget.categoryId.isNotEmpty
+        ? widget.categoryId
+        : 'uv-c';
     setState(() {
       isEditing = false;
     });
