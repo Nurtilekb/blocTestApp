@@ -1,17 +1,26 @@
 import 'package:bloctestapp/models/category_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CategoryService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String get _currentUserId => _auth.currentUser?.uid ?? '';
 
   CollectionReference<Map<String, dynamic>> get _categoriesCollection =>
-      _firestore.collection('categories').withConverter<Map<String, dynamic>>(
+      _firestore
+          .collection('users')
+          .doc(_currentUserId)
+          .collection('categories')
+          .withConverter<Map<String, dynamic>>(
             fromFirestore: (doc, _) => doc.data()!,
             toFirestore: (data, _) => data,
           );
 
   /// Получить все категории с обработкой ошибок
   Future<List<CategoryModel>> getAllCategories() async {
+    if (_currentUserId.isEmpty) return [];
     try {
       final snapshot = await _categoriesCollection.orderBy('id').get();
       return snapshot.docs
@@ -24,6 +33,7 @@ class CategoryService {
 
   /// Получить категорию по ID
   Future<CategoryModel?> getCategoryById(String id) async {
+    if (_currentUserId.isEmpty) return null;
     try {
       final snapshot = await _categoriesCollection
           .where('id', isEqualTo: id)
@@ -37,6 +47,7 @@ class CategoryService {
 
   /// Удалить категорию
   Future<void> deleteCategory(String id) async {
+    if (_currentUserId.isEmpty) return;
     try {
       await _categoriesCollection.doc(id).delete();
     } catch (e) {
@@ -46,6 +57,7 @@ class CategoryService {
 
   /// Обновить категорию
   Future<void> updateCategory(String id, String newName) async {
+    if (_currentUserId.isEmpty) return;
     try {
       await _categoriesCollection.doc(id).update({'name': newName});
     } catch (e) {
@@ -55,6 +67,9 @@ class CategoryService {
 
   /// Создать категорию (исправлено: используем UUID вместо инкремента)
   Future<CategoryModel> createCategory(String name, {String? id}) async {
+    if (_currentUserId.isEmpty) {
+      throw Exception('Пользователь не авторизован');
+    }
     try {
       final categoryId = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -66,8 +81,9 @@ class CategoryService {
     }
   }
 
-  /// Инициализировать категории по умолчанию
+  /// Инициализировать категории по умолчанию для пользователя
   Future<void> initializeDefaultCategories() async {
+    if (_currentUserId.isEmpty) return;
     try {
       final snapshot = await _categoriesCollection.get();
       if (snapshot.docs.isEmpty) {
