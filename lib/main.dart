@@ -17,7 +17,6 @@ import 'theme/light.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await CategoryService().initializeDefaultCategories();
 
   final authService = AuthService();
 
@@ -56,8 +55,10 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is Authenticated) {
+          // Инициализируем категории для пользователя после аутентификации
+          await CategoryService().initializeDefaultCategories();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const MyHomePage()),
