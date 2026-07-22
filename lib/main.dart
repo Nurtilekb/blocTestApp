@@ -3,7 +3,7 @@ import 'package:bloctestapp/bloc/auth/auth_state.dart';
 import 'package:bloctestapp/bloc/notes/notes_bloc.dart';
 import 'package:bloctestapp/bloc/repositories/notes_repository.dart';
 import 'package:bloctestapp/firebase_options.dart';
-import 'package:bloctestapp/pages/authentication/login_paage.dart';
+import 'package:bloctestapp/pages/authentication/sign_in_page.dart';
 import 'package:bloctestapp/pages/home_page/home_page.dart';
 import 'package:bloctestapp/services/auth_service.dart';
 import 'package:bloctestapp/services/category_service.dart';
@@ -54,38 +54,37 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) async {
-        if (state is Authenticated) {
-          // Инициализируем категории для пользователя после аутентификации
-          try {
-            await CategoryService().initializeDefaultCategories();
-          } catch (e) {
-            // Игнорируем ошибки инициализации категорий, чтобы не блокировать вход
-            debugPrint('Ошибка инициализации категорий: $e');
-          }
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const MyHomePage()),
-          );
-        } else if (state is Unauthenticated) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const SignInPage()),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           );
         }
       },
-      child: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          if (state is Authenticated) return const MyHomePage();
-          return const SignInPage();
-        },
-      ),
+      builder: (context, state) {
+        if (state is AuthLoading || state is AuthInitial) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFF0066FF)),
+            ),
+          );
+        }
+
+        if (state is Authenticated) {
+          return const MyHomePage();
+        }
+
+        return const SignInPage();
+      },
     );
   }
 }
